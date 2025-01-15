@@ -2,14 +2,19 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { fadeIn } from "../variants";
 
 const Footer = () => {
 	return (
 		<>
-			<footer className='bg-gray-600 text-white py-8'>
-				<div className='container mx-auto px-4'>
+			<footer className='bg-gray-600 border-t-[1px] border-secondary text-white py-8'>
+				<div className='container mx-auto px-4 border-primary pb-8 border-b-[1px] '>
 					<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-						<div>
+						<motion.div
+                        variants={fadeIn("up", 0.2)}
+                                            initial='hidden'
+                                            whileInView={"show"}>
 							<h2 className='text-lg font-semibold mb-4'>Base Navigation</h2>
 							<ul className='space-y-2'>
 								<li>
@@ -41,9 +46,12 @@ const Footer = () => {
 									</Link>
 								</li>
 							</ul>
-						</div>
+						</motion.div>
 
-						<div>
+						<motion.div 
+                        variants={fadeIn("up", 0.4)}
+                        initial='hidden'
+                        whileInView={"show"}>
 							<h2 className='text-lg font-semibold mb-4'>Important Links</h2>
 							<ul className='space-y-2'>
 								<li>
@@ -75,9 +83,12 @@ const Footer = () => {
 									</Link>
 								</li>
 							</ul>
-						</div>
+						</motion.div>
 
-						<div>
+						<motion.div
+                        variants={fadeIn("up", 0.6)}
+                        initial='hidden'
+                        whileInView={"show"}>
 							<h2 className='text-lg font-semibold mb-4'>Company Essentials</h2>
 							<ul className='space-y-2'>
 								<li>
@@ -88,9 +99,12 @@ const Footer = () => {
 									</Link>
 								</li>
 							</ul>
-						</div>
+						</motion.div>
 
-						<div>
+						<motion.div
+                        variants={fadeIn("up", 0.8)}
+                        initial='hidden'
+                        whileInView={"show"}>
 							<h2 className='text-lg font-semibold mb-4'>Connect With Us</h2>
 							<div className='flex space-x-4'>
 								<a
@@ -144,13 +158,16 @@ const Footer = () => {
 									</svg>
 								</a>
 							</div>
-						</div>
+						</motion.div>
 					</div>
 				</div>
 
-                <div className="container mx-auto px-4 md:mt-10 bg-primary w-[80%] p-5">
-                    <p className="text-center text-gray-300 font-light tracking-wider">Copyright ©CoinMiningStock 2025. All rights reserved.</p>
-                </div>
+
+                <motion.div variants={fadeIn("down", 0.3)}
+                        initial='hidden'
+                        whileInView={"show"} className="container mx-auto px-4 md:mt-24 md:mb-8 shadow-xl bg-gradient-to-t from-primary to- w-[80%] p-5">
+                    <p className="text-center text-gray-200  font-light tracking-wider">Copyright ©CoinMiningStock 2025. All rights reserved.</p>
+                </motion.div>
 			</footer>
 		</>
 	);

@@ -55,11 +55,13 @@ const whyChoose = [
 const About = () => {
 	return (
 		<>
-			<div className='bg-aboutImage h-[250px] md:h-[500px] bg-cover bg-center bg-no-repeat'></div>
+			<div className='bg-aboutImage h-[250px] md:h-[500px] bg-cover bg-center bg-no-repeat'>
+        <Nav />
+      </div>
 
 			<div className='px-5  md:px-10 py-3 md:py-5 bg-gray-100'>
 				<div>
-					<h2 className='text-primary font-bold text-2xl md:text-5xl mb-5 text-center'>
+					<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-4xl mb-5 text-center'>
 						About <span className='text-secondary'>Us</span>
 					</h2>
 					<p className='text-gray-500'>

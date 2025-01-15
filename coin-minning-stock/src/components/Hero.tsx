@@ -72,7 +72,7 @@ const Hero: React.FC = () => {
 				<div
 					className=''
 					style={{ backgroundImage: `url(${slides[currentSlide].imageURL})` }}>
-					{/* <Nav /> */}
+					<Nav />
 				</div>
 			</div>
 		</>
