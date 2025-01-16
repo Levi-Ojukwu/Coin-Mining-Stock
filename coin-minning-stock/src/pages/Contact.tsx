@@ -14,7 +14,7 @@ const Contact = () => {
 				<Nav />
 			</div>
 			<div className='min-h-screen bg-gray-200  pb-20'>
-				<div className='container mx-auto px-10 py-16 bg-gray-200'>
+				<div className='container mx-auto px-4 md:px-10 pt-10 md:pt-16 py-16 bg-gray-200'>
 					<motion.h1 variants={fadeIn("down", 0.2)}
                                 initial='hidden'
                                 whileInView={"show"} className='text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-center mb-8'>
