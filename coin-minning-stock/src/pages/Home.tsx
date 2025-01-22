@@ -6,6 +6,9 @@ const Home = () => {
   return (
     <>
         <Hero />
+        <div>
+          call
+        </div>
     </>
   )
 }

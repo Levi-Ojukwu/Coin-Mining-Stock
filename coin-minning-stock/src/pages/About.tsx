@@ -3,6 +3,8 @@
 import React from "react";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
+import WhatsAppLink from "../components/WhatsAppLink";
+import PopupModal from "../components/PopupModal";
 
 const whatWeOffer = [
 	{
@@ -32,37 +34,43 @@ const whatWeOffer = [
 	},
 ];
 
-
 const whyChoose = [
-  {
-    title: "Proven Expertise:",
-    description: "With years of experience in the cryptocurrency space, we bring unmatched knowledge and insights to our clients.",
-  },
-  {
-    title: "Global Reach:",
-    description: "We cater to a diverse clientele across the globe, enabling individuals and businesses to participate in the cryptocurrency revolution.",
-  },
-  {
-    title: "Sustainability Commitment:",
-    description: "We prioritize eco-friendly practices, ensuring that our mining operations are as energy-efficient as possible.",
-  },
-  {
-    title: "Future-Forward Approach:",
-    description: "By staying ahead of industry trends and technological advancements, we ensure our clients are well-positioned for success in the dynamic world of digital assets.",
-  },
+	{
+		title: "Proven Expertise:",
+		description:
+			"With years of experience in the cryptocurrency space, we bring unmatched knowledge and insights to our clients.",
+	},
+	{
+		title: "Global Reach:",
+		description:
+			"We cater to a diverse clientele across the globe, enabling individuals and businesses to participate in the cryptocurrency revolution.",
+	},
+	{
+		title: "Sustainability Commitment:",
+		description:
+			"We prioritize eco-friendly practices, ensuring that our mining operations are as energy-efficient as possible.",
+	},
+	{
+		title: "Future-Forward Approach:",
+		description:
+			"By staying ahead of industry trends and technological advancements, we ensure our clients are well-positioned for success in the dynamic world of digital assets.",
+	},
 ];
 
 const About = () => {
 	return (
 		<>
 			<div className='bg-aboutImage h-[250px] md:h-[500px] bg-cover bg-center bg-no-repeat'>
-        <Nav />
-      </div>
+				<Nav />
+			</div>
 
-			<div className='px-5  md:px-10 py-3 md:py-5 bg-gray-100'>
+			<div className='px-5 relative  md:px-10 py-3 md:py-5 bg-gray-100'>
+					<WhatsAppLink />
+					<PopupModal />
+
 				<div>
 					<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-4xl mb-5 text-center'>
-						About <span className='text-secondary'>Us</span>
+						About <span className=''>Us</span>
 					</h2>
 					<p className='text-gray-500'>
 						Coin Mining Stock is a pioneering platform dedicated to empowering
@@ -75,7 +83,7 @@ const About = () => {
 				</div>
 
 				<div>
-					<h2 className='text-primary font-bold text-2xl md:text-3xl mb-5 mt-10'>
+					<h2 className='mt-10 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl mb-5'>
 						Who We Are
 					</h2>
 
@@ -116,7 +124,7 @@ const About = () => {
 				<div>
 					<div className='md:flex gap-16'>
 						<div className=''>
-							<h2 className='text-primary font-bold text-2xl md:text-2xl mb-5 mt-10'>
+							<h2 className='mt-10 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl'>
 								Our Mission
 							</h2>
 
@@ -138,7 +146,7 @@ const About = () => {
 							</div>
 						</div>
 						<div>
-							<h2 className='text-primary font-bold text-2xl md:text-2xl mb-5 mt-10'>
+							<h2 className='text-primary mt-10 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl mt-10'>
 								Our Vision
 							</h2>
 
@@ -157,7 +165,7 @@ const About = () => {
 				</div>
 
 				<div>
-					<h2 className='text-primary font-bold text-2xl md:text-3xl mb-5 mt-10'>
+					<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-secondary font-bold text-2xl md:text-3xl mb-5 mt-10'>
 						What We Offer
 					</h2>
 
@@ -195,25 +203,35 @@ const About = () => {
 				</div>
 			</div>
 
-			<div className="px-5 mb-10 md:px-10 md:mb-10">
-				<h2 className='text-primary font-bold text-2xl md:text-3xl mb-5 mt-10'>
+			<div className='px-5 mb-10 md:px-10 md:mb-10'>
+				<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl mb-5 mt-10'>
 					Why Choose CMS?
 				</h2>
 
-        <div>
-          <div className="mb-3">
-            <p className="text-gray-500">By choosing Coin Mining Stock, you’re partnering with a platform that has your financial goals in mind. With our automated trading approach, you can invest confidently without dedicating hours to market analysis.</p>
-          </div>
-              {whyChoose.map((choice) => (
-                <div>
-                  <ul>
-                    <li className="text-gray-700 font-bold mb-1">{choice.title} <span className="text-gray-500 font-normal">{choice.description}</span></li>
-                  </ul>
-                </div>
-              ))}
-        </div>
+				<div>
+					<div className='mb-3'>
+						<p className='text-gray-500'>
+							By choosing Coin Mining Stock, you’re partnering with a platform
+							that has your financial goals in mind. With our automated trading
+							approach, you can invest confidently without dedicating hours to
+							market analysis.
+						</p>
+					</div>
+					{whyChoose.map((choice) => (
+						<div>
+							<ul>
+								<li className='text-gray-700 font-bold mb-1'>
+									{choice.title}{" "}
+									<span className='text-gray-500 font-normal'>
+										{choice.description}
+									</span>
+								</li>
+							</ul>
+						</div>
+					))}
+				</div>
 			</div>
-      <Footer />
+			<Footer />
 		</>
 	);
 };

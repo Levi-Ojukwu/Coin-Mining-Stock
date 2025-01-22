@@ -92,7 +92,7 @@ const HowItWorks = () => {
 					whileInView={"show"}
 					className='text-center'>
 					<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-center text-4xl font-bold mb-10'>
-						How I<span className='text-secondary'>t Works</span>
+						How I<span className=''>t Works</span>
 					</h2>
 					<p className='text-gray-500 text-lg font-medium md:mx-28'>
 						This page serves as a comprehensive guide to understanding the
@@ -107,7 +107,7 @@ const HowItWorks = () => {
 						variants={fadeIn("up", 0.4)}
 						initial='hidden'
 						whileInView={"show"}
-						className='text-primary font-bold text-center md:text-left  text-lg md:text-2xl'>
+						className='text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-secondary font-bold text-2xl md:text-3xl text-center md:text-left  text-lg md:text-2xl'>
 						Get Started With 8 Easy Steps
 					</motion.h2>
 

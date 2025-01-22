@@ -13,6 +13,8 @@ import Contact from "./pages/Contact";
 import HowItWorks from "./pages/HowItWorks";
 import Schema from "./pages/Schema";
 import Ranking from "./pages/Ranking";
+import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
 
 function App() {
 
@@ -47,6 +49,14 @@ function App() {
 					<Route
 						path='/ranking'
 						element={<Ranking />}
+					/>
+					<Route
+						path='/sign-up'
+						element={<SignUp />}
+					/>
+					<Route
+						path='/login'
+						element={<Login />}
 					/>
 				</Routes>
 			</Router>

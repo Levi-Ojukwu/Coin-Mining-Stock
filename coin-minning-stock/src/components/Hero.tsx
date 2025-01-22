@@ -9,8 +9,7 @@ interface Slide {
 }
 const slides: Slide[] = [
 	{
-		imageURL:
-			"https://m.foolcdn.com/media/dubs/images/original_imagesoriginal_imageshttpsg.foolcdn.c.width-880_SfbkM9V.jpg",
+		imageURL: "../images/HeroImg2.jpeg",
 		description:
 			"Coinminingstock specializes in cryptocurrency mining investments, offering a streamlined trading experience that empowers users to efficiently manage their portfolios without the complexities of manual exchange interactions",
 	},
@@ -22,7 +21,13 @@ const slides: Slide[] = [
 	},
 	{
 		imageURL:
-			"https://m.foolcdn.com/media/dubs/images/original_imagesoriginal_imageshttpsg.foolcdn.c.width-880_SfbkM9V.jpg",
+			"https://www.shutterstock.com/image-illustration/bitcoin-others-cryptocurrencies-mining-farm-600nw-2040542648.jpg",
+		description:
+			"Coinminingstock specializes in cryptocurrency mining investments, offering a streamlined trading experience that empowers users to efficiently manage their portfolios without the complexities of manual exchange interactions",
+	},
+	{
+		imageURL:
+			"https://www.shutterstock.com/image-illustration/bitcoin-others-cryptocurrencies-mining-farm-600nw-2040542648.jpg",
 		description:
 			"Coinminingstock specializes in cryptocurrency mining investments, offering a streamlined trading experience that empowers users to efficiently manage their portfolios without the complexities of manual exchange interactions",
 	},
@@ -70,7 +75,7 @@ const Hero: React.FC = () => {
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}>
 				<div
-					className=''
+					className='h-screen w-full bg-cover bg-no-repeat '
 					style={{ backgroundImage: `url(${slides[currentSlide].imageURL})` }}>
 					<Nav />
 				</div>

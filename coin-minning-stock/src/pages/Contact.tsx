@@ -26,7 +26,7 @@ const Contact = () => {
             <div className="max-w-2xl mx-auto mb-5">
               <motion.h2 variants={fadeIn("right", 0.4)}
                                     initial='hidden'
-                                    whileInView={"show"} className="text-primary font-bold text-2xl">Get In Touch</motion.h2>
+                                    whileInView={"show"} className="mt-10 text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-secondary font-bold text-2xl">Get In Touch</motion.h2>
             </div>
 						<div className='max-w-2xl mx-auto bg-gradient-to-br from-[#e4f33d2d] via-[#e4f33d01] to-[#e4f33d92] md:w-[70%]  shadow-lg p-8'>
 							<ContactForm />

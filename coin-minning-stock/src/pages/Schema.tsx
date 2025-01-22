@@ -148,7 +148,7 @@ const Schema = () => {
 					// viewport={once:false, amount: 0.7}
 					className='md:text-center'>
 					<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-center text-3xl md:text-4xl font-bold mb-10'>
-						Choose You<span className='text-secondary'>r Right Plan!</span>
+						Choose You<span className=''>r Right Plan!</span>
 					</h2>
 					<p className='text-gray-500 ml-4 md:text-lg font-medium md:mx-28'>
 						Select from the best plans, ensuring a perfect match.
@@ -163,22 +163,22 @@ const Schema = () => {
 					initial='hidden'
 					whileInView={"show"}
 					className='mt-5'>
-					<div className='flex items-center justify-between gap-36 bg-gray-100 shadow-md mx-72 px-32 pl-3 py-3 rounded-2xl'>
-						<p className='text-primary bg-gradient-to-r from-secondary to-secondary px-32 rounded-2xl shadow-md font-semibold py-2'>
+					<div className='md:flex items-center justify-between md:gap-36 bg-gray-100 shadow-md mx-4 md:mx-72 px-3 md:px-32 md:pl-3 py-3 rounded-2xl mb-16 md:mb-0'>
+						<p className='text-primary bg-gradient-to-r from-secondary mb-4 md:mb-0 to-secondary text-center md:px-32 rounded-2xl shadow-md font-semibold py-2'>
 							Monthly
 						</p>
-						<p className='text-primary font-semibold'>Quarterly</p>
+						<p className='text-primary font-semibold text-center'>Quarterly</p>
 					</div>
 				</motion.div>
 
-				<motion.div
-        className='md:mt-24 container mx-auto px-4'>
-					<div className='md:grid grid-cols-4 gap-4'>
+				<motion.div className='md:mt-24 container mx-auto px-4'>
+					<div className='grid md:grid-cols-4 gap-10 md:gap-4'>
 						{plans.map((plan) => (
-							<motion.div 
-              variants={fadeIn("down", 0.3)}
-					initial='hidden'
-					whileInView={"show"}className='group px-3 py-10 pb-5 border-[0.5px] bg-gray-100 hover:bg-[#1e656c0c] shadow-md'>
+							<motion.div
+								variants={fadeIn("down", 0.3)}
+								initial='hidden'
+								whileInView={"show"}
+								className='group px-3 py-10 pb-5 border-[0.5px] bg-gray-100 hover:bg-[#1e656c0c] shadow-md'>
 								<div className='mb-9 border-b-[1px] border-primary pb-3'>
 									<span>{plan.icon}</span>
 									<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-primary text-2xl font-medium'>
