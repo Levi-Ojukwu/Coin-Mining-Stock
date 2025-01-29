@@ -139,7 +139,7 @@ const PopupModal = () => {
 
 	return (
 		<>
-			<div className='fixed bottom-32 md:bottom-14 z-50'>
+			<div className='fixed bottom-32 md:bottom-5 left-5 z-50'>
 				<div
 					className={`bg-gradient-to-br from-[#e4f33df4] via-gray-400 to-[#849003fb] rounded-lg shadow-lg max-w-sm w-[80%] transition-opacity duration-300 ease-in-out ${
 						isVisible ? "opacity-100" : "opacity-0"

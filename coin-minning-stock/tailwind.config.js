@@ -10,7 +10,7 @@ module.exports = {
 
       backgroundImage: {
         aboutImage: "url('https://img.freepik.com/premium-photo/close-up-gold-bitcoin-black-background-with-trading-graph_35652-1624.jpg')",
-        howItWorksImage: "",
+        planImage: "url('https://www.shutterstock.com/image-illustration/top-12-cryptocurrency-tokens-by-600nw-2300861397.jpg')",
         backgroundOverlay: "linear-gradient(to-bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)",
       },
     },

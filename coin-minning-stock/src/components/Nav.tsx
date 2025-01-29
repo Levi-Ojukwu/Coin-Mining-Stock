@@ -31,7 +31,7 @@ const Nav = () => {
 						whileInView={"show"}>
 						<p className='text-secondary flex py-1 md:py-0 font-serif text-2xl'>
 							{" "}
-							<span className='font-[]'>CMS.</span>
+							<span className='font-[] z-50'>CMS.</span>
 						</p>
 						{/* <p className='text-secondary flex py-1 md:py-0 font-serif text-base'>
 							{" "}
@@ -44,7 +44,7 @@ const Nav = () => {
 						variants={fadeIn("down", 0.1)}
 						initial='hidden'
 						whileInView={"show"}
-						className='text-white md:px-10 md:pt-1 md:pb-3 md:ml-20 rounded-br-full rounded-bl-full md:mb-12 bg-gradient-to-t from-[#95a2094e] via-[#95a20916] to-[#95a2094e]'>
+						className='text-white z-50 md:px-10 md:pt-1 md:pb-3 md:ml-20 rounded-br-full rounded-bl-full md:mb-12 bg-gradient-to-t from-[#95a2094e] via-[#95a20916] to-[#95a2094e]'>
 						<ul className=' hidden md:flex gap-8 text-gray-200 font-medium text-base'>
 							<li>
 								<NavLink
@@ -99,12 +99,12 @@ const Nav = () => {
 						<div className='md:flex gap-3'>
 							<Link
 								to='/sign-up'
-								className='bg-gray-200 hidden md:flex hover:bg-gray-400 text-sm md:text-base transition duration-300 text-primary md:font-semibold rounded-lg px-4 py-1'>
+								className='bg-gray-200 z-50 hidden md:flex hover:bg-gray-400 text-sm md:text-base transition duration-300 text-primary md:font-semibold rounded-lg px-4 py-1'>
 								Register
 							</Link>
 							<Link
 								to='/login'
-								className='bg-[#e5f33d] hidden md:flex text-gray-500 font-semibold rounded-lg px-6 py-1'>
+								className='bg-[#e5f33d] z-50 hidden md:flex text-gray-500 font-semibold rounded-lg px-6 py-1'>
 								Login
 							</Link>
 							<div>
