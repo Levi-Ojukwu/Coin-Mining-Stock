@@ -23,7 +23,7 @@ const Nav = () => {
 	};
 	return (
 		<>
-			<nav className='px-4 py- md:px-10'>
+			<nav className='px-4 py- md:px-10 z-50'>
 				<div className='flex justify-between items-center '>
 					<motion.div
 						variants={fadeIn("right", 0.1)}
@@ -107,7 +107,10 @@ const Nav = () => {
 								className='bg-[#e5f33d] z-50 hidden md:flex text-gray-500 font-semibold rounded-lg px-6 py-1'>
 								Login
 							</Link>
-							<div>
+						</div>
+
+						<div>
+							<div className=''>
 								<span className='md:hidden'>
 									<RiMenu4Line
 										className='w-6 h-6 text-secondary'
@@ -120,7 +123,7 @@ const Nav = () => {
 				</div>
 
 				<div
-					className={`fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300 ${
+					className={`fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${
 						isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
 					}`}
 					onClick={toggleMenu}>
@@ -130,11 +133,11 @@ const Nav = () => {
 						}`}
 						onClick={(e) => e.stopPropagation()}>
 						<div className='flex justify-between items-center'>
-						<p className='text-secondary flex py-1 md:py-0 font-serif text-2xl'>
-							{" "}
-							<span className='font-[]'>CMS.</span>
-						</p>
-						{/* <p className='text-secondary flex py-1 md:py-0 font-serif text-base'>
+							<p className='text-secondary flex py-1 md:py-0 font-serif text-2xl'>
+								{" "}
+								<span className='font-[]'>CMS.</span>
+							</p>
+							{/* <p className='text-secondary flex py-1 md:py-0 font-serif text-base'>
 							{" "}
 							<span className='font-[]'>CM</span><span className="flex items-center"><PiCurrencyDollarDuotone className="w-10 border-[0.00001px] bg-gradient-to-b from-[#849003fb] via-primary to-[#727b0798] h-10"/><span>tock</span></span>
 						</p> */}
@@ -191,7 +194,7 @@ const Nav = () => {
 							</ul>
 						</div>
 
-						<div className="mt-10">
+						<div className='mt-10'>
 							<div className='flex gap-3'>
 								<Link
 									to='/sign-up'

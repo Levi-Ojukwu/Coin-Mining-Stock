@@ -12,6 +12,7 @@ module.exports = {
         aboutImage: "url('https://img.freepik.com/premium-photo/close-up-gold-bitcoin-black-background-with-trading-graph_35652-1624.jpg')",
         planImage: "url('https://www.shutterstock.com/image-illustration/top-12-cryptocurrency-tokens-by-600nw-2300861397.jpg')",
         backgroundOverlay: "linear-gradient(to-bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)",
+        partnershipImage: "url('https://img.freepik.com/premium-photo/3d-render-world-map-white-continents-blue-background-empty-world-atlas-with-copy-space_926199-2760850.jpg')"
       },
     },
   },

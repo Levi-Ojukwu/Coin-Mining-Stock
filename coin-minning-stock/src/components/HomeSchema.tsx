@@ -70,7 +70,7 @@ const plans = [
 const HomeSchema = () => {
 	return (
 		<>
-			<div className='md:py-20 md:px-10 px-5'>
+			<div className='md:py-20 py-10 md:px-10 px-5'>
 				<div className='mb-10'>
 					<h2 className='text-lg mb-3 uppercase font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-primary to-secondary'>
 						Investment Package
@@ -85,7 +85,7 @@ const HomeSchema = () => {
 				</div>
 
 				<motion.div className='md:mt- container mx-auto '>
-					<div className='grid md:grid-cols-4 gap-10 md:gap-4'>
+					<div className='grid md:grid-cols-4 gap-5 md:gap-4'>
 						{plans.map((plan) => (
 							<motion.div
 								variants={fadeIn("down", 0.3)}
