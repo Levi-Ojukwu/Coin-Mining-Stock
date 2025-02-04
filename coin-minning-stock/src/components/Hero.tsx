@@ -92,7 +92,7 @@ const Hero: React.FC = () => {
 						exchanges.
 					</p>
 
-					<a href="/sign-up" className="mt-10 md:mt-5 rounded-lg shadow-md shadow-primary flex items-center gap-3 justify-center py-3  bg-secondary z-50 w-[60%] md:w-[30%]">
+					<a href="/register" className="mt-10 md:mt-5 rounded-lg shadow-md shadow-primary flex items-center gap-3 justify-center py-3  bg-secondary z-50 w-[60%] md:w-[30%]">
 						<span className="text-transparent bg-clip-text text-xl font-semibold bg-gradient-to-r from-primary to-red-400">Get Started</span> <span><IoIosArrowForward  className="text-red-400 w-5 h-5"/></span>
 					</a>
 				</div>

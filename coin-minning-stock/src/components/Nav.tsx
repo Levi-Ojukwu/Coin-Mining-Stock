@@ -98,7 +98,7 @@ const Nav = () => {
 						whileInView={"show"}>
 						<div className='md:flex gap-3'>
 							<Link
-								to='/sign-up'
+								to='/register'
 								className='bg-gray-200 z-50 hidden md:flex hover:bg-gray-400 text-sm md:text-base transition duration-300 text-primary md:font-semibold rounded-lg px-4 py-1'>
 								Register
 							</Link>
@@ -197,7 +197,7 @@ const Nav = () => {
 						<div className='mt-10'>
 							<div className='flex gap-3'>
 								<Link
-									to='/sign-up'
+									to='/register'
 									className='bg-gray-200 hover:bg-gradient-to-r from-secondary via-primary to-secondary text-base transition duration-300 hover:text-gray-100 text-primary font-semibold rounded-lg px-4 py-1'>
 									Register
 								</Link>

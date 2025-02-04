@@ -13,8 +13,9 @@ import Contact from "./pages/Contact";
 import HowItWorks from "./pages/HowItWorks";
 import Schema from "./pages/Schema";
 import Ranking from "./pages/Ranking";
-import SignUp from "./pages/SignUp";
+import SignUp from "./pages/Register";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
 
@@ -51,8 +52,8 @@ function App() {
 						element={<Ranking />}
 					/>
 					<Route
-						path='/sign-up'
-						element={<SignUp />}
+						path='/register'
+						element={<Register />}
 					/>
 					<Route
 						path='/login'

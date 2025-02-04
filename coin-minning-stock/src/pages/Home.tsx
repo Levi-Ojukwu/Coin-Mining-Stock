@@ -322,7 +322,7 @@ const Home = () => {
 							reality.
 						</p>
 						<a
-							href='/sign-up'
+							href='/register'
 							className='text-transparent rounded-lg bg-secondary px-7 py-3'>
 							<span className='bg-clip-text bg-gradient-to-r from-primary to-red-400 text-lg font-semibold'>
 								Register Now

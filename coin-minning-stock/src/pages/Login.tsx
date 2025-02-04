@@ -4,7 +4,7 @@ const Login = () => {
   return (
     <>
         <div className='container mx-auto flex justify-center items-center min-h-screen'>
-            <div></div>
+            <div>This is The login page </div>
         </div>
     </>
   )
