@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios"; // Import axios for making API requests
 import { TfiPencilAlt } from "react-icons/tfi";
+import { useNavigate } from "react-router-dom"
 
 const countries = [
   { code: "AF", name: "Afghanistan" },
@@ -210,8 +211,9 @@ const Register = () => {
 	const [error, setError] = useState(""); // State to store error message
 	const [success, setSuccess] = useState(""); // State to store success message
 	const [loading, setLoading] = useState(false); // State to manage loading state
+  const navigate = useNavigate(); // Initializing the navigate function
 
-	const handleSubmit = async (e: any) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setLoading(true); //Set loading to true while waiting for response
 		setError(""); //Clear any previous errors
@@ -250,8 +252,13 @@ const Register = () => {
 			console.log("Response:", response.data); // Log the response to check success
 
 			// Handle success response: display the success message and handle further actions
-			setSuccess("Registration successful! Please log in to continue.");
+			setSuccess("Registration successful! Redirecting to login...");
 			setLoading(false);
+
+      //Delay navigation to show success message
+      setTimeout(() => {
+        navigate("/login")
+      }, 2000)
 		} catch (err: any) {
 			setLoading(false); //Set loading to false when the request is done
 
@@ -269,7 +276,7 @@ const Register = () => {
 
 	return (
 		<>
-			<div className='bg-gray-50 min-h-screen py-24 flex items-center justify-center'>
+			<div className='bg-[#00565c10] min-h-screen py-24 flex items-center justify-center'>
 				<div className='mx-auto bg-gradient-to-br from-[#e4f33d3d] via-[#e4f33d11] to-[#e4f33d92] px-5 md:px-12 py-10 rounded-lg shadow-lg w-full max-w-xl'>
 					
           <div className=" mb-7">
@@ -294,7 +301,7 @@ const Register = () => {
 							<label
 								htmlFor='name'
 								className='block text-sm font-medium text-gray-700'>
-								Name<span className="text-lg text-red-500">*</span>
+								Name <span className="text-lg text-red-500">*</span>
 							</label>
 							<input
 								type='text'
@@ -310,7 +317,7 @@ const Register = () => {
 							<label
 								htmlFor='username'
 								className='block text-sm font-medium text-gray-700'>
-								Username<span className="text-lg text-red-500">*</span>
+								Username <span className="text-lg text-red-500">*</span>
 							</label>
 							<input
 								type='text'
@@ -326,7 +333,7 @@ const Register = () => {
 							<label
 								htmlFor='email'
 								className='block text-sm font-medium text-gray-700'>
-								Email<span className="text-lg text-red-500">*</span>
+								Email <span className="text-lg text-red-500">*</span>
 							</label>
 							<input
 								type='email'
@@ -340,7 +347,7 @@ const Register = () => {
 
             <div>
             <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-              Country<span className="text-lg text-red-500">*</span>
+              Country <span className="text-lg text-red-500">*</span>
             </label>
             <select
               id="country"
@@ -362,7 +369,7 @@ const Register = () => {
 							<label
 								htmlFor='phone_number'
 								className='block text-sm font-medium text-gray-700'>
-								Phone Number<span className="text-lg text-red-500">*</span>
+								Phone Number <span className="text-lg text-red-500">*</span>
 							</label>
 							<input
 								type='tel'
@@ -378,7 +385,7 @@ const Register = () => {
 							<label
 								htmlFor='password'
 								className='block text-sm font-medium text-gray-700'>
-								Password<span className="text-lg text-red-500">*</span>
+								Password <span className="text-lg text-red-500">*</span>
 							</label>
 							<input
 								type='password'

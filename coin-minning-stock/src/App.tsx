@@ -16,6 +16,7 @@ import Ranking from "./pages/Ranking";
 import SignUp from "./pages/Register";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
 
@@ -59,6 +60,11 @@ function App() {
 						path='/login'
 						element={<Login />}
 					/>
+					<Route
+						path='/dashboard'
+						element={<Dashboard />}
+					/>
+					
 				</Routes>
 			</Router>
 
