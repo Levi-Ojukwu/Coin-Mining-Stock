@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
-import { Line } from "react-chartjs-2";
+// import { Line } from "react-chartjs-2";
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -22,15 +22,16 @@ import {
 	FiLogOut,
 } from "react-icons/fi";
 import { FaHandshake } from "react-icons/fa6";
-import CoinGeckoWidget from "../components/CoinlibWidget";
 import CoinlibWidget from "../components/CoinlibWidget";
 import CryptoAddresses from "../components/CryptoAddresses";
+import WithdrawalPage from "../components/WithdrawalPage";
+import DefaultPlan from "../components/DefaultPlan";
 
-const withdrawImages = [
-	{
-		image: "https://i.pcmag.com/imagery/reviews/068BjcjwBw0snwHIq0KNo5m-15..v1602794215.png",
-	},
-];
+// const withdrawImages = [
+// 	{
+// 		image: "https://i.pcmag.com/imagery/reviews/068BjcjwBw0snwHIq0KNo5m-15..v1602794215.png",
+// 	},
+// ];
 
 ChartJS.register(
 	CategoryScale,
@@ -65,9 +66,9 @@ const Dashboard: React.FC = () => {
 	const [user, setUser] = useState<User | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
-	const [balance, setBalance] = useState<number>(0);
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
-	const [chartData, setChartData] = useState<any>(null);
+	// const [balance, setBalance] = useState<number>(0);
+	// const [transactions, setTransactions] = useState<Transaction[]>([]);
+	// const [chartData, setChartData] = useState<any>(null);
 	const [activeNav, setActiveNav] = useState<string>("dashboard");
 	const navigate = useNavigate();
 
@@ -137,8 +138,8 @@ const Dashboard: React.FC = () => {
 			  })
 			  .then((response) => {
 				console.log("Dashboard data:", response.data)
-				setBalance(response.data.balance)
-				setTransactions(response.data.transactions)
+				// setBalance(response.data.balance)
+				// setTransactions(response.data.transactions)
 			  })
 			  .catch((error: Error | AxiosError) => {
 				setError("Failed to fetch dashboard data.")
@@ -242,12 +243,12 @@ const Dashboard: React.FC = () => {
 									Current Balance
 								</h2>
 								<p className='text-3xl font-bold text-green-600'>
-									${balance.toFixed(2)}
+									{/* ${balance.toFixed(2)} */}
 								</p>
 							</div>
 							<div className='bg-gradient-to-br from-[#e4f33d3c]  to-[#00565c46] px-5 py-7 rounded-lg shadow-md'>
 								<h2 className='text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-semibold mb-4'>
-									Total Deposit
+									Total Withdrawal
 								</h2>
 							</div>
 						</div>
@@ -257,8 +258,8 @@ const Dashboard: React.FC = () => {
 			case "transactions":
 				return (
 					<div className='bg-white p-6 rounded-lg shadow-md'>
-						<h2 className='text-2xl font-semibold mb-4'>Transaction History</h2>
-						<ul>
+						<h2 className='text-2xl font-semibold mb-6 text-primary'>Transaction History</h2>
+						{/* <ul>
 							{transactions.map((transaction) => (
 								<li
 									key={transaction.id}
@@ -275,7 +276,7 @@ const Dashboard: React.FC = () => {
 									<span className='ml-2 text-gray-500'>{transaction.date}</span>
 								</li>
 							))}
-						</ul>
+						</ul> */}
 					</div>
 				);
 			case "transfer":
@@ -284,19 +285,15 @@ const Dashboard: React.FC = () => {
 				);
 			case "withdrawals":
 				return (
-					<div className='bg-white p-6 rounded-lg shadow-md'>
-						<h2 className='text-2xl font-semibold mb-4'>Withdraw Funds</h2>
-						
-						<div className="grid grid-cols-4">
-
-						</div>
+					<div className='bg-gradient-to-br from-[#00565c4f] to-red-100 p-8 rounded-lg shadow-md'>					
+						<WithdrawalPage />
 					</div>
 				);
 			case "investments":
 				return (
 					<div className='bg-white p-6 rounded-lg shadow-md'>
-						<h2 className='text-2xl font-semibold mb-4'>Investment Plans</h2>
-						<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+						<h2 className='text-2xl font-semibold mb-6 text-primary'>Investment Plans</h2>
+						{/* <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 							{[
 								{ name: "Basic", return: "5%", duration: "30 days" },
 								{ name: "Standard", return: "8%", duration: "60 days" },
@@ -314,7 +311,9 @@ const Dashboard: React.FC = () => {
 									</button>
 								</div>
 							))}
-						</div>
+						</div> */}
+
+						<DefaultPlan />
 					</div>
 				);
 			default:

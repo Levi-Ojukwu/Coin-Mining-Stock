@@ -1,6 +1,6 @@
 /** @format */
 
-import { div } from "framer-motion/client";
+// import { div } from "framer-motion/client";
 import { useEffect, useRef } from "react";
 import type React from "react";
 import { FaQuoteLeft, FaQuoteRight } from "react-icons/fa6";

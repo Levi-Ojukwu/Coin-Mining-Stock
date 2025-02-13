@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+// import React from "react";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import { MdOutlineLightMode, MdOutlineLocalPlay } from "react-icons/md";

@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+// import React from "react";
 import { GiChampions, GiFallingOvoid } from "react-icons/gi";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
 import { MdOutlineLightMode } from "react-icons/md";

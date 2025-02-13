@@ -1,19 +1,13 @@
 /** @format */
 
-import React, { useState } from "react";
-import {
-	BrowserRouter as Router,
-	Route,
-	Routes,
-	Link,
-	NavLink,
-} from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { fadeIn } from "../variants";
 import { RiMenu4Line } from "react-icons/ri";
 import { IoClose } from "react-icons/io5";
-import { TbCurrencyDollar } from "react-icons/tb";
-import { PiCurrencyDollarDuotone } from "react-icons/pi";
+// import { TbCurrencyDollar } from "react-icons/tb";
+// import { PiCurrencyDollarDuotone } from "react-icons/pi";
 
 const Nav = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);

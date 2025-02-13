@@ -1,4 +1,4 @@
-import { easeInOut } from "framer-motion/dom"
+// import { easeInOut } from "framer-motion/dom"
 
 export const fadeIn = (direction:any, delay:any)  => {
     return{

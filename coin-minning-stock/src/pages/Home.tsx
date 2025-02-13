@@ -1,8 +1,8 @@
 /** @format */
 
-import React from "react";
+// import React from "react";
 import Hero from "../components/Hero";
-import Nav from "../components/Nav";
+// import Nav from "../components/Nav";
 import WhatsAppLink from "../components/WhatsAppLink";
 import PopupModal from "../components/PopupModal";
 import Footer from "../components/Footer";
@@ -14,17 +14,19 @@ import {
 } from "react-icons/gi";
 import { MdOutlineSecurity } from "react-icons/md";
 import { AiTwotoneTool } from "react-icons/ai";
-import { div } from "framer-motion/client";
+// import { div } from "framer-motion/client";
 import { BsStar, BsStarFill, BsStarHalf } from "react-icons/bs";
-import { DiRuby } from "react-icons/di";
 import { TbLockBitcoin } from "react-icons/tb";
-import { RiStockFill, RiStockLine } from "react-icons/ri";
+import { RiStockLine } from "react-icons/ri";
 import { FaAccusoft } from "react-icons/fa6";
 import HomeSchema from "../components/HomeSchema";
-import { Link, Links } from "react-router-dom";
+// import { Link, Links } from "react-router-dom";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
-import Testimonial from "../components/ScrollingTestimonials";
+// import Testimonial from "../components/ScrollingTestimonials";
 import ScrollingTestimonials from "../components/ScrollingTestimonials";
+// import CoinlibScroll from "../components/CryptoMarquee";
+import CryptoMarquee from "../components/CryptoMarquee";
+import TelegramLink from "../components/TelegramLink";
 
 const products = [
 	{
@@ -150,13 +152,14 @@ const Home = () => {
 		<>
 			<Hero />
 			<WhatsAppLink />
+			<TelegramLink  />
 			<PopupModal />
 
-			<div className='md:mx-10'>
-				<div></div>
+			<div className=''>
+				<CryptoMarquee />
 			</div>
 
-			<div className='px-5 md:px-10 grid gap-8 md:gap-5 py-20 md:grid-cols-3 bg-gray-100'>
+			<div className='px-5 md:px-10 grid gap-8 md:gap-5 py-20 pt-10 md:grid-cols-3 bg-gray-100'>
 				<div className='px-3 md:pb-7 py-10 bg-primary relative shadow-md rounded-lg'>
 					<div className='mb-8'>
 						<GiSupersonicArrow className='text-secondary w-6 h-6 absolute right-5 top-5' />

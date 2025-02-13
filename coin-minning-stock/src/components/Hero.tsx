@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Nav from "./Nav";
 import { IoIosArrowForward } from "react-icons/io";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 interface Slide {
 	imageURL: string;

@@ -28,7 +28,7 @@ const ContactForm = () => {
 		e.preventDefault();
 		setStatus("loading");
 		try {
-			await sendEmail(formData);
+			// await sendEmail(formData);
 			setStatus("success");
 			setFormData({ name: "", email: "", subject: "", message: "" });
 		} catch (error) {

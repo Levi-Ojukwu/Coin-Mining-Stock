@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+// import React from "react";
 import Footer from "../components/Footer";
 import { RxRocket } from "react-icons/rx";
 import { RiLuggageDepositLine, RiMailCheckLine } from "react-icons/ri";

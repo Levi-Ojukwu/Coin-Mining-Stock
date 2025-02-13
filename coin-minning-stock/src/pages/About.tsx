@@ -1,10 +1,9 @@
 /** @format */
 
-import React from "react";
+// import React from "react";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
-import WhatsAppLink from "../components/WhatsAppLink";
-import PopupModal from "../components/PopupModal";
+import CryptoMarquee from "../components/CryptoMarquee";
 
 const whatWeOffer = [
 	{
@@ -185,10 +184,10 @@ const About = () => {
 				</div>
 			</div>
 
-			<div className='bg-gradient-to-br from-primary  to-secondary h-[450px] md:h-[250px] px-5 pt-5 md:px-10 md:py-5 md:pt-10'>
+			<div className='bg-gradient-to-br from-primary  to-secondary h-[450px] md:h-[300px] pt-5  md:py-5 md:pt-10'>
 				<h2 className='text-gray-700 font-bold text-3xl mb-4'>Join Us</h2>
 
-				<div>
+				<div className="md:px-10 px-5">
 					<p className='text-gray-200 mb-3'>
 						At Coin Mining Stock, we believe that cryptocurrency mining and
 						investments should be accessible to everyone, regardless of
@@ -202,6 +201,10 @@ const About = () => {
 						let’s shape the future of finance.
 					</p>
 				</div>
+
+				<div className='mt-3'>
+				<CryptoMarquee />
+			</div>
 			</div>
 
 			<div className='px-5 mb-10 md:px-10 md:mb-10'>
