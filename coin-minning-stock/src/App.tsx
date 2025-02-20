@@ -4,7 +4,12 @@
 // import './App.css'
 import "./index.css";
 import "./output.css";
-import { BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import {
+	BrowserRouter as Router,
+	Route,
+	Routes,
+	Navigate,
+} from "react-router-dom";
 import "./components/Nav";
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -17,9 +22,25 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import CryptoAddresses from "./components/CryptoAddresses";
+import AdminLogin from "./pages/admin/Login";
+import AdminRegister from "./pages/admin/Register";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
+// Protected Route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+	const token = localStorage.getItem("admin_token");
+	if (!token) {
+		return (
+			<Navigate
+				to='/admin/login'
+				replace
+			/>
+		);
+	}
+	return <>{children}</>;
+};
 
 function App() {
-
 	return (
 		<>
 			<Router>
@@ -68,7 +89,25 @@ function App() {
 						path='/deposit'
 						element={<CryptoAddresses />}
 					/>
-					
+
+					<Route
+						path='/admin/login'
+						element={<AdminLogin />}
+					/>
+
+					<Route
+						path='/admin/register'
+						element={<AdminRegister />}
+					/>
+
+					<Route
+						path='/admin/dashboard'
+						element={
+							// <ProtectedRoute>
+								<AdminDashboard />
+							// </ProtectedRoute>
+						}
+					/>
 				</Routes>
 			</Router>
 
