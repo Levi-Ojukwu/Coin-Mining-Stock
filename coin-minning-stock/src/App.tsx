@@ -25,6 +25,7 @@ import CryptoAddresses from "./components/CryptoAddresses";
 import AdminLogin from "./pages/admin/Login";
 import AdminRegister from "./pages/admin/Register";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import { AuthProvider } from "./contexts/Authcontex";
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -42,7 +43,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
 	return (
-		<>
+		<AuthProvider>
 			<Router>
 				<Routes>
 					<Route
@@ -103,20 +104,14 @@ function App() {
 					<Route
 						path='/admin/dashboard'
 						element={
-							// <ProtectedRoute>
+							<ProtectedRoute>
 								<AdminDashboard />
-							// </ProtectedRoute>
+							</ProtectedRoute>
 						}
 					/>
 				</Routes>
 			</Router>
-
-			{/* <div>
-          <div>
-            <Hero />
-          </div>
-      </div>       */}
-		</>
+		</AuthProvider>
 	);
 }
 
