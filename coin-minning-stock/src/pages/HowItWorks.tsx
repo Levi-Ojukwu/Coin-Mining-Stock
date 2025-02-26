@@ -4,7 +4,7 @@
 import Footer from "../components/Footer";
 import { RxRocket } from "react-icons/rx";
 import { RiLuggageDepositLine, RiMailCheckLine } from "react-icons/ri";
-import { PiUserCircleCheckLight } from "react-icons/pi";
+// import { PiUserCircleCheckLight } from "react-icons/pi";
 import { IoPersonOutline } from "react-icons/io5";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
 import { GoPeople } from "react-icons/go";
@@ -31,7 +31,7 @@ const guides = [
 	},
 	{
 		icon: (
-			<PiUserCircleCheckLight className='w-14 h-14 font-bold text-secondary border-2 mb-3 border-primary bg-gray-400 p-3 rounded-tl-2xl rounded-br-2xl group-hover:animate-bounce' />
+			<RiMailCheckLine className='w-14 h-14 font-bold text-secondary border-2 mb-3 border-primary bg-gray-400 p-3 rounded-tl-2xl rounded-br-2xl group-hover:animate-bounce' />
 		),
 		title: "KYC Verification",
 		description:

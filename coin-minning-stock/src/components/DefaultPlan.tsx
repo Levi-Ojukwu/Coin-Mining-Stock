@@ -132,8 +132,9 @@ const DefaultPlan = () => {
     <>
         <div className='md:mt-10 container mx-auto px-4'>
 					<div className='grid md:grid-cols-3 gap-10 md:gap-4'>
-						{plans.map((plan) => (
+						{plans.map((plan, index) => (
 							<div
+                                key={index}
 								className='group px-3 py-10 pb-5 border-[0.5px] bg-gray-100 hover:bg-[#1e656c0c] shadow-md'>
 								<div className='mb-9 border-b-[1px] border-primary pb-3'>
 									<span>{plan.icon}</span>

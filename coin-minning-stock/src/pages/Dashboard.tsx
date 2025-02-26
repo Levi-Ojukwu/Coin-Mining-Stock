@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import toast from "sooner";
-import { useAuth } from "../contexts/Authcontex";
-// import { Line } from "react-chartjs-2";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
+import { useAuth } from "../contexts/AuthContex";
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -185,6 +185,7 @@ interface DashboardData {
 				  <table className="min-w-full divide-y divide-gray-200">
 					<thead>
 					  <tr>
+						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Id</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
 						<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -194,8 +195,9 @@ interface DashboardData {
 					<tbody>
 					  {dashboardData.transactions.map((transaction) => (
 						<tr key={transaction.id}>
+						  <td className="px-6 py-4 whitespace-nowrap capitalize">{transaction.id}</td>
 						  <td className="px-6 py-4 whitespace-nowrap capitalize">{transaction.type}</td>
-						  <td className="px-6 py-4 whitespace-nowrap">${transaction.amount.toFixed(2)}</td>
+						  <td className="px-6 py-4 whitespace-nowrap">${Number(transaction.amount).toFixed(2)}</td>
 						  <td className="px-6 py-4 whitespace-nowrap capitalize">{transaction.status}</td>
 						  <td className="px-6 py-4 whitespace-nowrap">
 							{new Date(transaction.created_at).toLocaleDateString()}

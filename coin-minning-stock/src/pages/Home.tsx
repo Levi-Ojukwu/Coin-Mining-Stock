@@ -269,8 +269,8 @@ const Home = () => {
 				</div>
 
 				<div className='grid md:grid-cols-3 gap-5'>
-					{products.map((product) => (
-						<div className='px-7 rounded-md shadow-md py-10 bg-[#c0eb751b]'>
+					{products.map((product, index) => (
+						<div key={index} className='px-7 rounded-md shadow-md py-10 bg-[#c0eb751b]'>
 							<div className='flex justify-between mb-4 items-center'>
 								<div className='flex items-center gap-2'>
 									<span className=''>{product.logoIcon}</span>
@@ -357,8 +357,8 @@ const Home = () => {
 						</div>
 						<div>
               <div className="grid grid-cols-3 gap-5 md:gap-7">
-                {partnership.map((partner) => (
-                  <div className="relative">
+                {partnership.map((partner, index) => (
+                  <div key={index} className="relative">
                     <img src={partner.imageUrl} className="md:w-40 w-36 h-12 md:h-16 shadow-lg " alt="" />
                     <span>{partner.icon}</span>
                   </div>

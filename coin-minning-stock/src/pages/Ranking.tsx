@@ -8,7 +8,7 @@ import {
 	TbCircleDashedNumber2,
 	TbCircleDashedNumber3,
 } from "react-icons/tb";
-import { PiShootingStarDuotone } from "react-icons/pi";
+// import { PiShootingStarDuotone } from "react-icons/pi";
 import { motion } from "framer-motion";
 import { fadeIn } from "../variants";
 
@@ -38,7 +38,7 @@ const badges = [
 	},
 	{
 		icon: (
-			<PiShootingStarDuotone className='w-16 h-16 text-gray-200 rounded-full shadow-md border p-2 bg-gradient-to-b from-[#1e666c57] via-primary to-secondary' />
+			<TbCircleDashedNumber3 className='w-16 h-16 text-gray-200 rounded-full shadow-md border p-2 bg-gradient-to-b from-[#1e666c57] via-primary to-secondary' />
 		),
 		title: "Victor",
 		description:
@@ -72,8 +72,9 @@ const Ranking = () => {
 
 				<div>
 					<div className=' flex flex-col md:grid grid-cols-4 gap-4 items-center justify-center mt-5 md:mt-24'>
-						{badges.map((badge) => (
+						{badges.map((badge, index) => (
 							<motion.div
+								key={index}
 								variants={fadeIn("down", 0.1)}
 								initial='hidden'
 								whileInView={"show"}

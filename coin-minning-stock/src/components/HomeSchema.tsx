@@ -86,8 +86,9 @@ const HomeSchema = () => {
 
 				<motion.div className='md:mt- container mx-auto '>
 					<div className='grid md:grid-cols-4 gap-5 md:gap-4'>
-						{plans.map((plan) => (
+						{plans.map((plan, index) => (
 							<motion.div
+								key={index}
 								variants={fadeIn("down", 0.3)}
 								initial='hidden'
 								whileInView={"show"}

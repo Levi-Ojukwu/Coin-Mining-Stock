@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import axios from "axios"
-import  toast  from "sooner"
+import { toast } from "sonner"
+import { User } from "lucide-react"
 
 interface User {
   id: number
@@ -72,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", token)
       localStorage.setItem("user", JSON.stringify(userData))
       setUser(userData)
+
+      
       toast.success("Login successful!")
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -86,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  } 
 
   const register = async (userData: RegisterData, isAdmin = false) => {
     try {
@@ -102,6 +105,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
+        if (error.response?.status === 422) {
+          // Pass validation errors up to the component
+          const validationErrors = error.response.data.messages
+          setError("Validation failed")
+          // Show first validation error as toast
+          const firstError = Object.values(validationErrors)[0]
+          if (Array.isArray(firstError) && firstError.length > 0) {
+            toast.error(firstError[0])
+          }
+          throw error
+        }
         const errorMessage = error.response?.data?.error || "Registration failed"
         setError(errorMessage)
         toast.error(errorMessage)
@@ -119,13 +133,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true)
       const token = localStorage.getItem("token")
-      const currentUser = user
 
-      if (!token || !currentUser) {
+      if (!token || !user) {
         throw new Error("No active session")
       }
 
-      const endpoint = currentUser.role === "admin" ? "/api/admin/logout" : "/api/logout"
+      const endpoint = user?.role === "admin" ? "/api/admin/logout" : "/api/logout"
       await axios.post(`http://127.0.0.1:8000${endpoint}`, null, {
         headers: { Authorization: `Bearer ${token}` },
       })

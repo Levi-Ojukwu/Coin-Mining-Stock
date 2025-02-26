@@ -7,9 +7,6 @@ import { IoIosEye, IoIosEyeOff } from "react-icons/io"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-// import { TfiPencilAlt } from "react-icons/tfi";
-// import { IoLogInSharp } from "react-icons/io5";
-// import { RiLoginCircleFill } from "react-icons/ri";
 import { FaRegHandshake } from "react-icons/fa6";
 
 const loginSchema = z.object({
@@ -20,8 +17,6 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 
 const Login = () => {
-	// const [email, setEmail] = useState("");
-	// const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState("");
 	const [loading, setLoading] = useState(false);
