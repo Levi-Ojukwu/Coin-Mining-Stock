@@ -17,6 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../../components/ui/select";
+import { Alert, AlertDescription } from "../../components/ui/alert";
 
 interface Transaction {
 	id: number;
@@ -31,6 +32,8 @@ interface User {
 	id: number;
 	name: string;
 	email: string;
+	balance: number
+  	total_withdrawal: number
 }
 
 const UpdateUserTransactions: React.FC = () => {
@@ -84,6 +87,12 @@ const UpdateUserTransactions: React.FC = () => {
 				error.response?.data?.error || error.message || "Failed to fetch data";
 			setError(errorMessage);
 			toast.error(errorMessage);
+
+			// If user not found, redirect to dashboard
+			if (error.response?.status === 404) {
+				toast.error(`User with ID ${userId} not found`)
+				setTimeout(() => navigate("/admin/dashboard"), 2000)
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -93,6 +102,8 @@ const UpdateUserTransactions: React.FC = () => {
 		e.preventDefault();
 		try {
 			setSubmitting(true);
+			setError(null)
+
 			const token = localStorage.getItem("admin_token");
 
 			if (!token) {
@@ -107,6 +118,11 @@ const UpdateUserTransactions: React.FC = () => {
 			const amount = Number.parseFloat(newTransactionAmount);
 			if (isNaN(amount) || amount <= 0) {
 				throw new Error("Please enter a valid amount greater than 0");
+			}
+
+			// Check if withdrawal amount exceeds balance
+			if (newTransactionType === "withdrawal" && user && amount > user.balance) {
+				throw new Error(`Insufficient balance. Current balance: ${Number(user.balance).toFixed(2)}`)
 			}
 
 			const response = await axios.post(
@@ -126,14 +142,26 @@ const UpdateUserTransactions: React.FC = () => {
 
 			toast.success("Transaction added successfully");
 			setNewTransactionAmount("");
-			fetchUserAndTransactions(); // Refresh the data
+
+			 // Update user and transactions with new data
+			 if (response.data.user) {
+				setUser(response.data.user)
+			}
+			await fetchUserAndTransactions(); // Refresh the data
 		} catch (error: any) {
 			console.error("Failed to add transaction:", error);
 			const errorMessage =
 				error.response?.data?.error ||
 				error.message ||
 				"Failed to add transaction";
-			toast.error(errorMessage);
+				setError(errorMessage)
+				toast.error(errorMessage);
+
+				// If user not found, redirect to dashboard
+				if (error.response?.status === 404) {
+					toast.error(`User with ID ${userId} not found`)
+					setTimeout(() => navigate("/admin/dashboard"), 2000)
+				}
 		} finally {
 			setSubmitting(false);
 		}
@@ -163,6 +191,19 @@ const UpdateUserTransactions: React.FC = () => {
 				</Button>
 			</div>
 		);
+	}
+
+	if (!user) {
+		return (
+		  <div className="max-w-4xl mx-auto mt-8">
+			<Alert>
+			  <AlertDescription>User not found</AlertDescription>
+			</Alert>
+			<Button onClick={() => navigate("/admin/dashboard")} className="mt-4">
+			  Back to Dashboard
+			</Button>
+		  </div>
+		)
 	}
 
 	return (
