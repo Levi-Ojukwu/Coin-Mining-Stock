@@ -37,7 +37,7 @@ const onSubmit = async (data: LoginFormData) => {
   setSuccess("")
 
   try {
-    const response = await axios.post("http://127.0.0.1:8000/api/login", data)
+    const response = await axios.post("https://api.elitefarmmine.com/api/login", data)
 
     console.log("Response:", response.data)
     if (response.data.token && response.data.user) {
@@ -62,37 +62,6 @@ const onSubmit = async (data: LoginFormData) => {
 const togglePasswordVisibility = () => {
   setShowPassword(!showPassword)
 }
-	// const handleSubmit = async (e: any) => {
-	// 	e.preventDefault();
-	// 	setLoading(true);
-	// 	setError("");
-	// 	setSuccess("");
-
-	// 	try {
-	// 		const response = await axios.post("http://127.0.0.1:8000/api/login", {
-	// 			email,
-	// 			password,
-	// 		});
-
-	// 		console.log("Response:", response.data);
-	// 		if (response.data.token && response.data.user) {
-	// 			setSuccess("Login successful!");
-	// 			localStorage.setItem("token", response.data.token);
-	// 			localStorage.setItem("user", JSON.stringify(response.data.user));
-	// 			navigate("/dashboard");
-	// 		} else {
-	// 			setError("Invalid login response. Please try again.");
-	// 		}
-	// 	} catch (err: any) {
-	// 		setLoading(false);
-	// 		if (err.response) {
-	// 			setError(err.response.data.error || "Login failed. Please try again.");
-	// 		} else {
-	// 			setError("Something went wrong. Please try again.");
-	// 		}
-	// 	}
-	// };
-
 	return (
 		<>
     <div className="flex justify-center items-center min-h-screen bg-[#00565c10]">

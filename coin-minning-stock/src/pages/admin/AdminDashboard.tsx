@@ -8,7 +8,7 @@ import type { FC } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../../contexts/AuthContex";
+// import { useAuth } from "../../contexts/AuthContex";
 import LogoutModal from "../../components/LogoutModal";
 import UpdateUserModal from "../../components/UpdateUserModal";
 import { Button } from "../../components/ui/button";
@@ -38,6 +38,12 @@ interface Transaction {
 	amount: number;
 	status: string;
 	created_at: string;
+	visible_to_user: boolean;
+	user: {
+		id: number;
+		name: string;
+		email: string;
+	};
 }
 
 interface DashboardData {
@@ -46,11 +52,17 @@ interface DashboardData {
 	total_withdrawals: number;
 	recent_users: User[];
 	transactions: Transaction[];
+
+	admin_stats: {
+		current_count: number;
+		max_allowed: number;
+		slots_available: number;
+	};
 }
 
 const AdminDashboard: FC = () => {
 	const navigate = useNavigate();
-	const { user } = useAuth();
+	// const { user } = useAuth();
 	const [loading, setLoading] = useState(true);
 	const [dashboardData, setDashboardData] = useState<DashboardData | null>(
 		null,
@@ -58,26 +70,16 @@ const AdminDashboard: FC = () => {
 	// const [users, setUsers] = useState<User[]>([]);
 	// const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
-	const [updateAmount, setUpdateAmount] = useState("");
-	const [transactionType, setTransactionType] = useState("deposit");
-	const [showUpdateUserModal, setShowUpdateUserModal] = useState(false)
-	const [showTransactionModal, setShowTransactionModal] = useState(false);
+	// const [updateAmount, setUpdateAmount] = useState("");
+	// const [transactionType, setTransactionType] = useState("deposit");
+	const [showUpdateUserModal, setShowUpdateUserModal] = useState(false);
+	// const [showTransactionModal, setShowTransactionModal] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
-	const [showUserManagementModal, setShowUserManagementModal] = useState(false);
+	// const [showUserManagementModal, setShowUserManagementModal] = useState(false);
 
 	useEffect(() => {
 		const token = localStorage.getItem("admin_token");
-
-		// if (user === null) {
-		// 	navigate("/admin/login");
-		// 	return;
-		// }
-
-		// if (user.role !== "admin") {
-		// 	navigate("/");
-		// 	return;
-		// }
 
 		if (!token) {
 			navigate("/admin/login");
@@ -85,76 +87,55 @@ const AdminDashboard: FC = () => {
 		}
 
 		fetchDashboardData();
-	}, [user, navigate]);
+	}, [navigate]);
 
 	const fetchDashboardData = async () => {
 		try {
+			setLoading(true);
+			setError(null);
+
 			const token = localStorage.getItem("admin_token");
+
+			if (!token) {
+				throw new Error("No authentication token found");
+			}
 
 			const response = await axios.get<{
 				message: string;
 				data: DashboardData;
-			}>("http://127.0.0.1:8000/api/admin/dashboard", {
-				headers: { Authorization: `Bearer ${token}` },
+			}>("https://api.elitefarmmine.com/api/admin/dashboard", {
+				headers: {
+					Authorization: `Bearer ${token}`,
+					Accept: "application/json",
+				},
 			});
+
+			// Ensure we have the data and it's in the correct format
+			if (!response.data || !response.data.data) {
+				throw new Error("Invalid response format from server");
+			}
+
 			setDashboardData(response.data.data);
 			setError(null);
-		} catch (error) {
-			console.error("Failed to fetch dashboard data:", error);
-			setError("Failed to fetch dashboard data");
-			toast.error("Failed to fetch dashboard data");
+		} catch (err: any) {
+			console.error("Dashboard fetch error:", err);
+			const errorMessage =
+				err.response?.data?.error ||
+				err.message ||
+				"Failed to load dashboard data";
+			setError(errorMessage);
+			toast.error(errorMessage);
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleUpdateBalance = async (userId: number) => {
-		try {
-			const token = localStorage.getItem("admin_token");
-			await axios.post(
-				`http://127.0.0.1:8000/api/admin/users/${userId}/update-balance`,
-				{
-					amount: Number.parseFloat(updateAmount),
-					type: transactionType,
-				},
-				{
-					headers: { Authorization: `Bearer ${token}` },
-				},
-			);
-
-			// setShowUpdateModal(false);
-			setUpdateAmount("");
-			fetchDashboardData();
-			setError(null);
-		} catch (error) {
-			console.error("Failed to update balance:", error);
-			setError("Failed to update balance");
-		}
+	const handleUpdateUser = (userId: number) => {
+		navigate(`/admin/users/${userId}/update-balance`);
 	};
 
-	const handleAddTransaction = async (userId: number) => {
-		try {
-			const token = localStorage.getItem("admin_token");
-			await axios.post(
-				`http://127.0.0.1:8000/api/admin/transactions`,
-				{
-					user_id: userId,
-					type: transactionType,
-					amount: Number.parseFloat(updateAmount),
-				},
-				{
-					headers: { Authorization: `Bearer ${token}` },
-				},
-			);
-
-			setShowTransactionModal(false);
-			setUpdateAmount("");
-			fetchDashboardData();
-			setError(null);
-		} catch (error) {
-			console.error("Failed to add transaction:", error);
-			setError("Failed to add transaction");
-		}
+	const handleUpdateTransactions = (userId: number) => {
+		navigate(`/admin/users/${userId}/transactions`);
 	};
 
 	const handleLogout = async () => {
@@ -169,7 +150,7 @@ const AdminDashboard: FC = () => {
 				return;
 			}
 			const response = await axios.post(
-				"http://127.0.0.1:8000/api/admin/logout",
+				"https://api.elitefarmmine.com/api/admin/logout",
 				{}, // Empty body
 				{
 					headers: {
@@ -217,7 +198,7 @@ const AdminDashboard: FC = () => {
 			try {
 				const token = localStorage.getItem("admin_token");
 
-				await axios.delete(`http://127.0.0.1:8000/api/admin/users/${userId}`, {
+				await axios.delete(`https://api.elitefarmmine.com/api/admin/users/${userId}`, {
 					headers: { Authorization: `Bearer ${token}` },
 				});
 				toast.success("User deleted successfully");
@@ -234,7 +215,7 @@ const AdminDashboard: FC = () => {
 			try {
 				const token = localStorage.getItem("admin_token");
 				await axios.delete(
-					`http://127.0.0.1:8000/api/admin/transactions/${transactionId}`,
+					`https://api.elitefarmmine.com/api/admin/transactions/${transactionId}`,
 					{
 						headers: { Authorization: `Bearer ${token}` },
 					},
@@ -251,7 +232,23 @@ const AdminDashboard: FC = () => {
 	if (loading) {
 		return (
 			<div className='flex items-center justify-center min-h-screen'>
-				<div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500'></div>
+				<div className='text-xl'>Loading dashboard...</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className='flex items-center justify-center min-h-screen'>
+				<div className='text-red-600'>{error}</div>
+			</div>
+		);
+	}
+
+	if (!dashboardData) {
+		return (
+			<div className='flex items-center justify-center min-h-screen'>
+				<div className='text-xl'>No dashboard data available</div>
 			</div>
 		);
 	}
@@ -265,10 +262,17 @@ const AdminDashboard: FC = () => {
 							<h1 className='text-2xl font-bold text-primary'>
 								Admin Dashboard
 							</h1>
+							<div className='flex items-center gap-4'>
+								<span className='text-sm text-gray-600'>
+									Admin slots: {dashboardData.admin_stats.current_count}/
+									{dashboardData.admin_stats.max_allowed}
+								</span>
+							</div>
 						</div>
 
 						<div className='flex items-center'>
 							<Button
+								className='px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors'
 								variant='outline'
 								onClick={() => setShowLogoutModal(true)}>
 								Logout
@@ -278,7 +282,7 @@ const AdminDashboard: FC = () => {
 				</div>
 			</nav>
 
-			<main className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
+			<main className='max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8'>
 				{error && (
 					<div className='mb-4 p-4 text-red-700 bg-red-100 rounded-md'>
 						{error}
@@ -288,8 +292,8 @@ const AdminDashboard: FC = () => {
 				<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
 					<div className='bg-white overflow-hidden shadow-sm rounded-lg p-6'>
 						<div className='text-sm font-medium text-gray-500'>Total Users</div>
-						<div className='mt-2 text-3xl font-semibold text-gray-900'>
-							{dashboardData?.total_users || 0}
+						<div className='mt-2  md:text-3xl font-semibold text-primary'>
+							{dashboardData.total_users || 0}
 						</div>
 					</div>
 					<div className='bg-white overflow-hidden shadow-sm rounded-lg p-6'>
@@ -316,50 +320,60 @@ const AdminDashboard: FC = () => {
 							Recent Users
 						</h2>
 					</div>
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Name</TableHead>
-								<TableHead>Email</TableHead>
-								<TableHead>Balance</TableHead>
-								<TableHead>Total Withdrawal</TableHead>
-								<TableHead>Actions</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{dashboardData?.recent_users.map((user) => (
-								<TableRow key={user.id}>
-									<TableCell>{user.name}</TableCell>
-									<TableCell>{user.email}</TableCell>
-									<TableCell>
-										${(Number(dashboardData?.total_balance) || 0).toFixed(2)}
-									</TableCell>
-									<TableCell>
-										$$
-										{(Number(dashboardData?.total_withdrawals) || 0).toFixed(2)}
-									</TableCell>
-									<TableCell>
-										<Button
-											variant='outline'
-											size='sm'
-											onClick={() => {
-												setSelectedUser(user);
-												setShowUpdateUserModal(true);
-											}}>
-											Update
-										</Button>
-										<Button
-											variant='destructive'
-											size='sm'
-											onClick={() => handleDeleteUser(user.id)}
-											className='ml-2'>
-											Delete
-										</Button>
-									</TableCell>
+
+					<div className='overflow-x-auto'>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Name</TableHead>
+									<TableHead>Email</TableHead>
+									<TableHead>Balance</TableHead>
+									<TableHead>Total Withdrawal</TableHead>
+									<TableHead>Actions</TableHead>
 								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+							</TableHeader>
+							<TableBody>
+								{dashboardData?.recent_users.map((user) => (
+									<TableRow key={user.id}>
+										<TableCell>{user.name}</TableCell>
+										<TableCell>{user.email}</TableCell>
+										<TableCell>
+											${(Number(user.balance) || 0).toFixed(2)}
+										</TableCell>
+										<TableCell>
+											${(Number(user.total_withdrawal) || 0).toFixed(2)}
+										</TableCell>
+										<TableCell>
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => {
+													handleUpdateUser(user.id);
+													setSelectedUser(user);
+													setShowUpdateUserModal(true);
+												}}>
+												Update Balance
+											</Button>
+											<Button
+												variant='outline'
+												size='sm'
+												onClick={() => handleUpdateTransactions(user.id)}
+												className='text-green-600 hover:text-green-900'>
+												Transactions
+											</Button>
+											<Button
+												variant='destructive'
+												size='sm'
+												onClick={() => handleDeleteUser(user.id)}
+												className='ml-2'>
+												Delete
+											</Button>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</div>
 				</div>
 
 				<div className='bg-white shadow-md rounded-lg'>
@@ -373,14 +387,16 @@ const AdminDashboard: FC = () => {
 							Refresh
 						</Button>
 					</div>
+					
+					<div className="overflow-x-auto">
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>ID</TableHead>
 								<TableHead>User</TableHead>
 								<TableHead>Type</TableHead>
 								<TableHead>Amount</TableHead>
 								<TableHead>Status</TableHead>
+								<TableHead>Visibility</TableHead>
 								<TableHead>Date</TableHead>
 								<TableHead>Actions</TableHead>
 							</TableRow>
@@ -388,22 +404,39 @@ const AdminDashboard: FC = () => {
 						<TableBody>
 							{dashboardData?.transactions.map((transaction) => (
 								<TableRow key={transaction.id}>
-									<TableCell>{transaction.id}</TableCell>
-									<TableCell>
+									<TableCell>{transaction.user.name}</TableCell>
+									{/* <TableCell>
 										{dashboardData.recent_users.find(
 											(user) => user.id === transaction.user_id,
 										)?.name || "Unknown"}
-									</TableCell>
+									</TableCell> */}
 									<TableCell className='capitalize'>
 										{transaction.type}
 									</TableCell>
-									<TableCell>${Number(transaction.amount).toFixed(2)}</TableCell>
+
+									<TableCell>
+										<span
+											className={
+												transaction.type === "deposit"
+													? "text-green-600"
+													: "text-red-600"
+											}>
+											${Number(transaction.amount).toFixed(2)}
+										</span>
+									</TableCell>
+
 									<TableCell className='capitalize'>
 										{transaction.status}
 									</TableCell>
+
+									<TableCell>
+										{transaction.visible_to_user ? "Visible" : "Hidden"}
+									</TableCell>
+
 									<TableCell>
 										{new Date(transaction.created_at).toLocaleDateString()}
 									</TableCell>
+
 									<TableCell>
 										<Button
 											variant='destructive'
@@ -416,6 +449,7 @@ const AdminDashboard: FC = () => {
 							))}
 						</TableBody>
 					</Table>
+					</div>
 				</div>
 			</main>
 
@@ -425,14 +459,17 @@ const AdminDashboard: FC = () => {
 				onConfirm={handleLogout}
 				title='Confirm Admin Logout'
 				description='Are you sure you want to logout from the admin dashboard?'
+				// isAdmin
 			/>
 
-			<UpdateUserModal
-				isOpen={showUpdateUserModal}
-				onClose={() => setShowUpdateUserModal(false)}
-				user={selectedUser}
-				onUserUpdate={fetchDashboardData}
-			/>
+			{selectedUser && (
+				<UpdateUserModal
+					isOpen={showUpdateUserModal}
+					onClose={() => setShowUpdateUserModal(false)}
+					user={selectedUser}
+					onUserUpdate={fetchDashboardData}
+				/>
+			)}
 		</div>
 	);
 };

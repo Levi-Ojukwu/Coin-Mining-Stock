@@ -4,16 +4,16 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Alert, AlertDescription } from "../../components/ui/alert";
-import { useAuth } from "../../contexts/AuthContex";
+// import { useAuth } from "../../contexts/AuthContex";
 
 const AdminLogin = () => {
-  const { user } = useAuth()
+//   const { user } = useAuth()
 	const navigate = useNavigate();
 	const [formData, setFormData] = useState({
 		email: "",
@@ -46,7 +46,7 @@ const AdminLogin = () => {
 			// const response = await axios.post("http://127.0.0.1:8000/api/admin/login", formData)
 
 			const response = await axios.post(
-				"http://127.0.0.1:8000/api/admin/login",
+				"https://api.elitefarmmine.com/api/admin/login",
 				formData,
 				{
 					headers: {

@@ -10,10 +10,10 @@ import {
 	Routes,
 	Navigate,
 } from "react-router-dom";
-import "./components/Nav";
+// import "./components/Nav";
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Contact from "./pages/Contact";
+// import Contact from "./pages/Contact";
 import HowItWorks from "./pages/HowItWorks";
 import Schema from "./pages/Schema";
 import Ranking from "./pages/Ranking";
@@ -30,20 +30,6 @@ import { AuthProvider } from "./contexts/AuthContex";
 import { ToastContainer } from "react-toastify";
 import UpdateUserBalance from "./pages/admin/UpdateUserBalance";
 import UpdateUserTransactions from "./pages/admin/UpdateUserTransactions";
-
-// Protected Route component
-// const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-// 	const token = localStorage.getItem("admin_token");
-// 	if (!token) {
-// 		return (
-// 			<Navigate
-// 				to='/admin/login'
-// 				replace
-// 			/>
-// 		);
-// 	}
-// 	return <>{children}</>;
-// };
 
 function App() {
 	return (
@@ -63,10 +49,10 @@ function App() {
 							path='/about'
 							element={<About />}
 						/>
-						<Route
+						{/* <Route
 							path='/contact'
 							element={<Contact />}
-						/>
+						/> */}
 						<Route
 							path='/how-it-works'
 							element={<HowItWorks />}
@@ -117,12 +103,21 @@ function App() {
 						/>
 
 						<Route
-							path='/admin/update-user-balance/:userId'
-							element={<UpdateUserBalance />}
+							path='/admin/users/:userId/update-balance'
+							element={
+								<ProtectedRoute>
+									<UpdateUserBalance />
+								</ProtectedRoute>
+							}
 						/>
+
 						<Route
-							path='/admin/update-user-transactions/:userId'
-							element={<UpdateUserTransactions />}
+							path='/admin/users/:userId/transactions'
+							element={
+								<ProtectedRoute>
+									<UpdateUserTransactions />
+								</ProtectedRoute>
+							}
 						/>
 
 						<Route
@@ -131,6 +126,17 @@ function App() {
 								<ProtectedRoute>
 									<AdminDashboard />
 								</ProtectedRoute>
+							}
+						/>
+
+						{/* Catch all route - redirect to home */}
+						<Route
+							path='*'
+							element={
+								<Navigate
+									to='/'
+									replace
+								/>
 							}
 						/>
 					</Routes>

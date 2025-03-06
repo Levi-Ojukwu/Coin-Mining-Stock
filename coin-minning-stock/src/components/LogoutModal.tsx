@@ -30,6 +30,8 @@ export default function LogoutModal({
 }: LogoutModalProps) {
 	const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+	isLoggingOut;
+
 	const handleConfirm = async () => {
 		try {
 			setIsLoggingOut(true);

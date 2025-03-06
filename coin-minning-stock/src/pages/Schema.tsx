@@ -21,9 +21,9 @@ const plans = [
 		checkmarkIcon: (
 			<IoShieldCheckmarkSharp className='w-3 h-3 text-[#00c30b]' />
 		),
-		investAmount: "$20.00   ",
+		investAmount: "$50.00   ",
 		receive: "TO RECEIVE",
-		receiveAmount: "$60.00",
+		receiveAmount: "$150.00",
 		duration: "24/hrs Antiminar",
 		button: "INVEST NOW",
 	},
@@ -140,7 +140,7 @@ const Schema = () => {
 				<Nav />
 			</div>
 
-			<div className='container mx-auto px-4 py-16 md:pb-32 bg-gray-200'>
+			<div className='container mx-auto px-4 py-16 md:pb-32 mb-5 bg-gray-200'>
 				<motion.div
 					variants={fadeIn("down", 0.2)}
 					initial='hidden'
@@ -158,7 +158,7 @@ const Schema = () => {
 					</p>
 				</motion.div>
 
-				<motion.div
+				{/* <motion.div
 					variants={fadeIn("up", 0.3)}
 					initial='hidden'
 					whileInView={"show"}
@@ -169,7 +169,7 @@ const Schema = () => {
 						</p>
 						<p className='text-primary font-semibold text-center'>Quarterly</p>
 					</div>
-				</motion.div>
+				</motion.div> */}
 
 				<motion.div className='md:mt-24 container mx-auto px-4'>
 					<div className='grid md:grid-cols-4 gap-10 md:gap-4'>

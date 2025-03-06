@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import axios from "axios"
-import { toast } from "sonner"
+import { toast } from "react-toastify"
 import { User } from "lucide-react"
 
 interface User {
@@ -18,6 +18,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null
+  setUser: React.Dispatch<React.SetStateAction<User | null>>
   loading: boolean
   error: string | null
   login: (email: string, password: string, isAdmin?: boolean) => Promise<void>
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null)
 
       const endpoint = isAdmin ? "/api/admin/login" : "/api/login"
-      const response = await axios.post(`http://127.0.0.1:8000${endpoint}`, {
+      const response = await axios.post(`https://api.elitefarmmine.com${endpoint}`, {
         email,
         password,
       })
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null)
 
       const endpoint = isAdmin ? "/api/admin/register" : "/api/register"
-      const response = await axios.post(`http://127.0.0.1:8000${endpoint}`, userData)
+      const response = await axios.post(`https://api.elitefarmmine.com${endpoint}`, userData)
 
       if (response.data.message) {
         toast.success(response.data.message)
@@ -139,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const endpoint = user?.role === "admin" ? "/api/admin/logout" : "/api/logout"
-      await axios.post(`http://127.0.0.1:8000${endpoint}`, null, {
+      await axios.post(`https://api.elitefarmmine.com${endpoint}`, null, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -165,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearError = () => setError(null)
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout, clearError }}>
+    <AuthContext.Provider value={{ user, setUser, loading, error, login, register, logout, clearError }}>
       {children}
     </AuthContext.Provider>
   )

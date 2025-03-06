@@ -47,7 +47,7 @@ const UpdateUserBalance: React.FC = () => {
 			  }
 
 			const response = await axios.get<User>(
-				`http://127.0.0.1:8000/api/admin/users/${userId}`,
+				`https://api.elitefarmmine.com/api/admin/users/${userId}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ const UpdateUserBalance: React.FC = () => {
 			}
 
 			const response = await axios.post(
-				`http://127.0.0.1:8000/api/admin/users/${userId}/update-balance`,
+				`https://api.elitefarmmine.com/api/admin/users/${userId}/update-balance`,
 				{
 					user_id: Number.parseInt(userId), // Explicitly send the user ID
 					balance: balance,

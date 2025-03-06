@@ -83,16 +83,16 @@ const Hero: React.FC = () => {
 				<div className="absolute top-0 left-0 h-[450px] md:h-screen w-full z-10 bg-[#00000076]"></div>
 
 				<div className=' px-5 md:px-10 flex flex-col md:w-[60%] mt-10 md:mt-14 '>
-					<h1 className='text-transparent bg-clip-text bg-gradient-to-br from-red-400 via-secondary to-primary text-4xl md:text-[52px] font-bold text-gray-50 z-50 md:tracking-wider md:leading-[1.2]'>
+					<h1 className='text-transparent bg-clip-text bg-gradient-to-br from-red-400 via-secondary to-primary text-4xl md:text-[52px] font-bold text-gray-50 md:tracking-wider z-10 md:leading-[1.2]'>
 						Digital Currency Mining Made Simple With Auto Trading.
 					</h1>
-					<p className='text-gray-100 mt-6 md:mt-10 md:text-xl z-50 font-medium tracking-wide leading-[1.3]'>
+					<p className='text-gray-100 mt-6 md:mt-10 md:text-xl z-10 font-medium tracking-wide leading-[1.3]'>
 						Coin Mining Stock simplifies the trading experience by making it
 						possible to manage your portfolio without manual dealing with
 						exchanges.
 					</p>
 
-					<a href="/register" className="mt-10 md:mt-5 rounded-lg shadow-md shadow-primary flex items-center gap-3 justify-center py-3  bg-secondary z-50 w-[60%] md:w-[30%]">
+					<a href="/register" className="mt-10 md:mt-5 rounded-lg shadow-md shadow-primary flex items-center gap-3 justify-center py-3  bg-secondary z-10 w-[60%] md:w-[30%]">
 						<span className="text-transparent bg-clip-text text-xl font-semibold bg-gradient-to-r from-primary to-red-400">Get Started</span> <span><IoIosArrowForward  className="text-red-400 w-5 h-5"/></span>
 					</a>
 				</div>

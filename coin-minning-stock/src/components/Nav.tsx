@@ -54,13 +54,13 @@ const Nav = () => {
 									About
 								</NavLink>
 							</li>
-							<li>
+							{/* <li>
 								<NavLink
 									to='/contact'
 									className='hover:border-b-4 border-secondary  hover:text-gray-200 transition duration-300 px- py-1'>
 									Contact
 								</NavLink>
-							</li>
+							</li> */}
 							<li>
 								<NavLink
 									to='/how-it-works'
@@ -103,16 +103,12 @@ const Nav = () => {
 							</Link>
 						</div>
 
-						<div>
-							<div className=''>
-								<span className='md:hidden'>
-									<RiMenu4Line
-										className='w-6 h-6 text-secondary'
-										onClick={toggleMenu}
-									/>
-								</span>
-							</div>
-						</div>
+						<span className='md:hidden z-50 relative'>
+							<RiMenu4Line
+								className='w-6 h-6 text-secondary'
+								onClick={toggleMenu}
+							/>
+						</span>
 					</motion.div>
 				</div>
 
@@ -122,7 +118,7 @@ const Nav = () => {
 					}`}
 					onClick={toggleMenu}>
 					<div
-						className={`fixed insert-y-0 left-0 w-[80%] bg-primary px-4 pt-2 pb-10 z-40 transition-transform duration-300 transform ${
+						className={`relative insert-y-0 left-0 w-[80%] bg-primary px-4 pt-2 pb-10 z-[9999px] transition-transform duration-300 transform ${
 							isMenuOpen ? "translate-x-0" : "-translate-x-full"
 						}`}
 						onClick={(e) => e.stopPropagation()}>
@@ -157,13 +153,13 @@ const Nav = () => {
 										About
 									</NavLink>
 								</li>
-								<li>
+								{/* <li>
 									<NavLink
 										to='/contact'
 										className='hover:border-b-4 border-secondary  hover:text-gray-200 transition duration-300 px- py-1'>
 										Contact
 									</NavLink>
-								</li>
+								</li> */}
 								<li>
 									<NavLink
 										to='/how-it-works'

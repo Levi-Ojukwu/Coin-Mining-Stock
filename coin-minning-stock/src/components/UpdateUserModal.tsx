@@ -18,7 +18,7 @@ interface UpdateUserModalProps {
   onUserUpdate: () => void
 }
 
-const UpdateUserModal: React.FC<UpdateUserModalProps> = ({ isOpen, onClose, user, onUserUpdate }) => {
+const UpdateUserModal: React.FC<UpdateUserModalProps> = ({ isOpen, onClose, user }) => {
   const navigate = useNavigate()
 
   const handleUpdateBalanceAndWithdrawal = () => {

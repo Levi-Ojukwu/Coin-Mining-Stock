@@ -17,9 +17,9 @@ const plans = [
 		checkmarkIcon: (
 			<IoShieldCheckmarkSharp className='w-3 h-3 text-[#00c30b]' />
 		),
-		investAmount: "$20.00   ",
+		investAmount: "$50.00   ",
 		receive: "TO RECEIVE",
-		receiveAmount: "$60.00",
+		receiveAmount: "$150.00",
 		duration: "24/hrs Antiminar",
 		button: "INVEST NOW",
 	},

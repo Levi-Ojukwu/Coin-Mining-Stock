@@ -26,6 +26,7 @@ interface Transaction {
 	status: string;
 	description: string;
 	created_at: string;
+	visible_to_user: boolean;
 }
 
 interface User {
@@ -68,7 +69,7 @@ const UpdateUserTransactions: React.FC = () => {
 
 			// Fetch user details
 			const response = await axios.get(
-				`http://127.0.0.1:8000/api/admin/users/${userId}/transactions`,
+				`https://api.elitefarmmine.com/api/admin/users/${userId}/transactions`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -120,16 +121,21 @@ const UpdateUserTransactions: React.FC = () => {
 				throw new Error("Please enter a valid amount greater than 0");
 			}
 
-			// Check if withdrawal amount exceeds balance
-			if (newTransactionType === "withdrawal" && user && amount > user.balance) {
-				throw new Error(`Insufficient balance. Current balance: ${Number(user.balance).toFixed(2)}`)
+			// Add maximum amount validation
+			if (amount > 999999999999999999.99) {
+				throw new Error("Amount exceeds maximum allowed value")
 			}
 
+			// // Check if withdrawal amount exceeds balance
+			// if (newTransactionType === "withdrawal" && user && amount > user.balance) {
+			// 	throw new Error(`Insufficient balance. Current balance: ${Number(user.balance).toFixed(2)}`)
+			// }
+
 			const response = await axios.post(
-				`http://127.0.0.1:8000/api/admin/users/${userId}/transactions`,
+				`https://api.elitefarmmine.com/api/admin/users/${userId}/transactions`,
 				{
 					type: newTransactionType,
-					amount: amount,
+					amount: amount.toFixed(2), // Ensure proper decimal format
 				},
 				{
 					headers: {
