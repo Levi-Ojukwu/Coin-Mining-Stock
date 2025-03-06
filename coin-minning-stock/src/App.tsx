@@ -37,10 +37,7 @@ function App() {
 			<AuthProvider>
 				<Router>
 					<Routes>
-						<Route
-							index
-							element={<Home />}
-						/>
+						
 						<Route
 							path='/'
 							element={<Home />}
@@ -82,15 +79,6 @@ function App() {
 							element={<CryptoAddresses />}
 						/>
 
-						{/* <Route
-						path='/'
-						element={
-							<Navigate
-								to='/admin/login'
-								replace
-							/>
-						}
-					/> */}
 
 						<Route
 							path='/admin/login'
