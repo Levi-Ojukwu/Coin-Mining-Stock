@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
@@ -23,6 +25,9 @@ class User extends Authenticatable implements JWTSubject
         'country',
         'phone_number',
         'password',
+        'role',
+        'balance',
+        'total_withdrawal',
     ];
 
     /**
@@ -45,7 +50,22 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'balance' => 'decimal:2',
+            'total_withdrawal' => 'decimal:2',
         ];
+    }
+
+    // protected $casts = [
+    //     'email_verified_at' => 'datetime',
+    //     'password' => 'hashed',
+    //     'balance' => 'decimal:2',
+    //     'total_withdrawal' => 'decimal:2'
+    // ];
+
+    // Add the transactions relationship
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     public function getJWTIdentifier() {
@@ -53,6 +73,9 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function getJWTCustomClaims() {
-        return [];
+        return [
+            'role' => $this->role,
+            'type' => 'user'
+        ];
     }
 }
