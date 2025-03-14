@@ -20,6 +20,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "../../components/ui/table";
+import { ChevronLeft, Users } from "lucide-react";
 
 // Types
 interface User {
@@ -67,16 +68,13 @@ const AdminDashboard: FC = () => {
 	const [dashboardData, setDashboardData] = useState<DashboardData | null>(
 		null,
 	);
-	// const [users, setUsers] = useState<User[]>([]);
-	// const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
-	// const [updateAmount, setUpdateAmount] = useState("");
-	// const [transactionType, setTransactionType] = useState("deposit");
 	const [showUpdateUserModal, setShowUpdateUserModal] = useState(false);
-	// const [showTransactionModal, setShowTransactionModal] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
-	// const [showUserManagementModal, setShowUserManagementModal] = useState(false);
+	const [allUsers, setAllUsers] = useState<User[]>([]);
+	const [showAllUsers, setShowAllUsers] = useState(false);
+	const [loadingAllUsers, setLoadingAllUsers] = useState(false);
 
 	useEffect(() => {
 		const token = localStorage.getItem("admin_token");
@@ -127,6 +125,41 @@ const AdminDashboard: FC = () => {
 			toast.error(errorMessage);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const fetchAllUsers = async () => {
+		try {
+			setLoadingAllUsers(true);
+			const token = localStorage.getItem("admin_token");
+
+			if (!token) {
+				throw new Error("No authentication token found");
+			}
+
+			const response = await axios.get<{
+				message: string;
+				users: User[];
+			}>("https://api.elitefarmmine.com/api/admin/users", {
+				headers: {
+					Authorization: `Bearer ${token}`,
+					Accept: "application/json",
+				},
+			});
+
+			if (!response.data || !response.data.users) {
+				throw new Error("Invalid response format from server");
+			}
+
+			setAllUsers(response.data.users);
+			setShowAllUsers(true);
+		} catch (err: any) {
+			console.error("Failed to fetch all users:", err);
+			const errorMessage =
+				err.response?.data?.error || err.message || "Failed to load all users";
+			toast.error(errorMessage);
+		} finally {
+			setLoadingAllUsers(false);
 		}
 	};
 
@@ -198,9 +231,12 @@ const AdminDashboard: FC = () => {
 			try {
 				const token = localStorage.getItem("admin_token");
 
-				await axios.delete(`https://api.elitefarmmine.com/api/admin/users/${userId}`, {
-					headers: { Authorization: `Bearer ${token}` },
-				});
+				await axios.delete(
+					`https://api.elitefarmmine.com/api/admin/users/${userId}`,
+					{
+						headers: { Authorization: `Bearer ${token}` },
+					},
+				);
 				toast.success("User deleted successfully");
 				fetchDashboardData();
 			} catch (error) {
@@ -254,11 +290,11 @@ const AdminDashboard: FC = () => {
 	}
 
 	return (
-		<div className='min-h-screen bg-gray-100'>
-			<nav className='bg-white shadow-md'>
-				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+		<div className='min-h-screen bg-gray-200 pb-10'>
+			<nav className='bg-white shadow-md mb-7'>
+				<div className='max-w-7xl mx-auto px-10 sm:px-6 lg:px-8'>
 					<div className='flex justify-between h-16'>
-						<div className='flex items-center'>
+						<div className='flex items-center gap-3'>
 							<h1 className='text-2xl font-bold text-primary'>
 								Admin Dashboard
 							</h1>
@@ -272,7 +308,7 @@ const AdminDashboard: FC = () => {
 
 						<div className='flex items-center'>
 							<Button
-								className='px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors'
+								className='px-4 py-2 bg-red-600 text-red-500 rounded hover:bg-red-700 transition-colors'
 								variant='outline'
 								onClick={() => setShowLogoutModal(true)}>
 								Logout
@@ -315,10 +351,29 @@ const AdminDashboard: FC = () => {
 				</div>
 
 				<div className='bg-white shadow-md rounded-lg mb-8'>
-					<div className='px-4 py-5 sm:px-6'>
+					<div className='px-4 py-5 sm:px-6 flex justify-between items-center'>
 						<h2 className='text-xl font-semibold text-gray-900'>
-							Recent Users
+							{showAllUsers ? "All Users" : "Recent Users"}
 						</h2>
+
+						{showAllUsers ? (
+							<Button
+								variant='outline'
+								onClick={() => setShowAllUsers(false)}
+								className='flex items-center gap-2'>
+								<ChevronLeft className='h-4 w-4' />
+								Back to Recent Users
+							</Button>
+						) : (
+							<Button
+								variant='outline'
+								onClick={fetchAllUsers}
+								disabled={loadingAllUsers}
+								className='flex items-center gap-2'>
+								<Users className='h-4 w-4' />
+								{loadingAllUsers ? "Loading..." : "View All Users"}
+							</Button>
+						)}
 					</div>
 
 					<div className='overflow-x-auto'>
@@ -332,8 +387,51 @@ const AdminDashboard: FC = () => {
 									<TableHead>Actions</TableHead>
 								</TableRow>
 							</TableHeader>
+
 							<TableBody>
-								{dashboardData?.recent_users.map((user) => (
+								{(showAllUsers ? allUsers : dashboardData?.recent_users).map(
+									(user) => (
+										<TableRow key={user.id}>
+											<TableCell>{user.name}</TableCell>
+											<TableCell>{user.email}</TableCell>
+											<TableCell>
+												${(Number(user.balance) || 0).toFixed(2)}
+											</TableCell>
+											<TableCell>
+												${(Number(user.total_withdrawal) || 0).toFixed(2)}
+											</TableCell>
+											<TableCell>
+												<div className='flex flex-wrap gap-2'>
+													<Button
+														variant='outline'
+														size='sm'
+														onClick={() => {
+															handleUpdateUser(user.id);
+															setSelectedUser(user);
+															setShowUpdateUserModal(true);
+														}}>
+														Update Balance
+													</Button>
+													<Button
+														variant='outline'
+														size='sm'
+														onClick={() => handleUpdateTransactions(user.id)}
+														className='text-green-600 hover:text-green-900'>
+														Transactions
+													</Button>
+													<Button
+														variant='destructive'
+														size='sm'
+														onClick={() => handleDeleteUser(user.id)}>
+														Delete
+													</Button>
+												</div>
+											</TableCell>
+										</TableRow>
+									),
+								)}
+
+								{/* {dashboardData?.recent_users.map((user) => (
 									<TableRow key={user.id}>
 										<TableCell>{user.name}</TableCell>
 										<TableCell>{user.email}</TableCell>
@@ -370,7 +468,7 @@ const AdminDashboard: FC = () => {
 											</Button>
 										</TableCell>
 									</TableRow>
-								))}
+								))} */}
 							</TableBody>
 						</Table>
 					</div>
@@ -387,68 +485,68 @@ const AdminDashboard: FC = () => {
 							Refresh
 						</Button>
 					</div>
-					
-					<div className="overflow-x-auto">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>User</TableHead>
-								<TableHead>Type</TableHead>
-								<TableHead>Amount</TableHead>
-								<TableHead>Status</TableHead>
-								<TableHead>Visibility</TableHead>
-								<TableHead>Date</TableHead>
-								<TableHead>Actions</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{dashboardData?.transactions.map((transaction) => (
-								<TableRow key={transaction.id}>
-									<TableCell>{transaction.user.name}</TableCell>
-									{/* <TableCell>
+
+					<div className='overflow-x-auto'>
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>User</TableHead>
+									<TableHead>Type</TableHead>
+									<TableHead>Amount</TableHead>
+									<TableHead>Status</TableHead>
+									<TableHead>Visibility</TableHead>
+									<TableHead>Date</TableHead>
+									<TableHead>Actions</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{dashboardData?.transactions.map((transaction) => (
+									<TableRow key={transaction.id}>
+										<TableCell>{transaction.user.name}</TableCell>
+										{/* <TableCell>
 										{dashboardData.recent_users.find(
 											(user) => user.id === transaction.user_id,
 										)?.name || "Unknown"}
 									</TableCell> */}
-									<TableCell className='capitalize'>
-										{transaction.type}
-									</TableCell>
+										<TableCell className='capitalize'>
+											{transaction.type}
+										</TableCell>
 
-									<TableCell>
-										<span
-											className={
-												transaction.type === "deposit"
-													? "text-green-600"
-													: "text-red-600"
-											}>
-											${Number(transaction.amount).toFixed(2)}
-										</span>
-									</TableCell>
+										<TableCell>
+											<span
+												className={
+													transaction.type === "deposit"
+														? "text-green-600"
+														: "text-red-600"
+												}>
+												${Number(transaction.amount).toFixed(2)}
+											</span>
+										</TableCell>
 
-									<TableCell className='capitalize'>
-										{transaction.status}
-									</TableCell>
+										<TableCell className='capitalize'>
+											{transaction.status}
+										</TableCell>
 
-									<TableCell>
-										{transaction.visible_to_user ? "Visible" : "Hidden"}
-									</TableCell>
+										<TableCell>
+											{transaction.visible_to_user ? "Visible" : "Hidden"}
+										</TableCell>
 
-									<TableCell>
-										{new Date(transaction.created_at).toLocaleDateString()}
-									</TableCell>
+										<TableCell>
+											{new Date(transaction.created_at).toLocaleDateString()}
+										</TableCell>
 
-									<TableCell>
-										<Button
-											variant='destructive'
-											size='sm'
-											onClick={() => handleDeleteTransaction(transaction.id)}>
-											Delete
-										</Button>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+										<TableCell>
+											<Button
+												variant='destructive'
+												size='sm'
+												onClick={() => handleDeleteTransaction(transaction.id)}>
+												Delete
+											</Button>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
 					</div>
 				</div>
 			</main>
