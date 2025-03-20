@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
+// use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -37,9 +38,10 @@ class AdminController extends Controller
         try {
             // Check if admin limit is reached
             $adminCount = Admin::count();
-            if ($adminCount >= 4) {
+            $maxAdmins = 15; // Define the maximum number of admins allowed
+            if ($adminCount >= $maxAdmins) {
                 return response()->json([
-                    'error' => 'Maximum number of admins (4) has been reached. Cannot register new admin.'
+                    'error' => "Maximum number of admins ({$maxAdmins}) has been reached. Cannot register new admin."
                 ], 403);
             }
             
@@ -152,7 +154,7 @@ class AdminController extends Controller
 
             // Get admin stats
             $adminCount = Admin::count();
-            $maxAdmins = 4;
+            $maxAdmins = 15;
             $slotsAvailable = $maxAdmins - $adminCount;
 
             $dashboardData = $this->getDashboardData();
@@ -223,6 +225,10 @@ class AdminController extends Controller
             // Format decimal values properly
             $newBalance = number_format((float)$request->balance, 2, '.', '');
             $newTotalWithdrawal = number_format((float)$request->total_withdrawal, 2, '.', '');
+
+            // Store original values for email notification
+            $originalBalance = $user->balance;
+            $originalWithdrawal = $user->total_withdrawal;
 
             //Log the update attempt
             Log::info('Update values comparison:', [
@@ -300,6 +306,11 @@ class AdminController extends Controller
 
             DB::commit();
 
+            // Send email notification about balance update
+            // if ($updatedUser->email) {
+            //     $this->sendBalanceUpdateEmail($updatedUser, $originalBalance, $originalWithdrawal);
+            // }
+
             // Log successful update
             Log::info('User balance updated successfully', [
                 'user_id' => $userId,
@@ -334,6 +345,55 @@ class AdminController extends Controller
         }
     }
 
+    // Function to get all users
+    public function getAllUsers()
+    {
+        try {
+            // Verify admin authentication
+            $admin = JWTAuth::parseToken()->authenticate();
+            
+            if (!$admin || $admin->role !== 'admin') {
+                return response()->json(['error' => 'Unauthorized access'], 403);
+            }
+
+            // Get all users with their balances
+            $users = User::select('id', 'name', 'email', 'phone_number', 'balance', 'total_withdrawal')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone_number' => $user->phone_number,
+                        'balance' => (float)$user->balance,
+                        'total_withdrawal' => (float)$user->total_withdrawal
+                    ];
+                });
+
+            return response()->json([
+                'message' => 'Users retrieved successfully',
+                'users' => $users
+            ], 200);
+            
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['error' => 'Invalid token'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json(['error' => 'Token has expired'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['error' => 'Token not provided'], 401);
+        } catch (\Exception $e) {
+            Log::error('Failed to retrieve all users', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Failed to retrieve users: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     //Function to get user details 
     public function getUserDetails($userId)
     {
@@ -352,6 +412,7 @@ class AdminController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'phone_number' => $user->phone_number,
             'balance' => $user->balance ?? 0, // Provide default value if null
             'total_withdrawal' => $user->total_withdrawal ?? 0 // Ensure field name matches
         ], 200);
@@ -373,7 +434,7 @@ class AdminController extends Controller
 
     //Function to add transaction 
     public function addTransaction(Request $request, $userId)
-    {
+    {   
 
         try {
             // Verify admin authentication
@@ -424,25 +485,22 @@ class AdminController extends Controller
                 // }
 
                 // Create transaction (visible to user by default)
+
                 $transaction = new Transaction();
                 $transaction->user_id = $userId;
                 $transaction->type = $request->type;
                 $transaction->amount = $request->amount;
                 $transaction->status = 'completed';
-                $transaction->description = ucfirst($request->type) . ' processed by admin';
+                $transaction->description = ucfirst($request->type) . ' recorded by admin';
                 $transaction->visible_to_user = true; // Visible to user
                 $transaction->save();
 
-                // Update user balance
-                if ($request->type === 'deposit') {
-                    $user->balance += $request->amount;
-                } else {
-                    $user->balance -= $request->amount;
-                    $user->total_withdrawal += $request->amount;
-                }
-                $user->save();
-
                 DB::commit();
+
+                // Send transaction notification email
+                // if ($user->email) {
+                //     $this->sendTransactionNotificationEmail($user, $transaction);
+                // }
 
                 // Log successful transaction
                 Log::info('Transaction completed successfully', [
@@ -478,6 +536,66 @@ class AdminController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to add transaction: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // Function to delete user
+    public function deleteUser($userId)
+    {
+        try {
+            // Verify admin authentication
+            $admin = JWTAuth::parseToken()->authenticate();
+            if (!$admin || $admin->role !== 'admin') {
+                return response()->json(['error' => 'Unauthorized access'], 403);
+            }
+
+            // Find the user
+            $user = User::find($userId);
+            if (!$user) {
+                return response()->json(['error' => 'User not found'], 404);
+            }
+
+            // Delete the user
+            $user->delete();
+
+            return response()->json(['message' => 'User deleted successfully'], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to delete user', [
+                'user_id' => $userId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['error' => 'Failed to delete user: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // Function to delete transaction
+    public function deleteTransaction($transactionId)
+    {
+        try {
+            // Verify admin authentication
+            $admin = JWTAuth::parseToken()->authenticate();
+            if (!$admin || $admin->role !== 'admin') {
+                return response()->json(['error' => 'Unauthorized access'], 403);
+            }
+
+            // Find the transaction
+            $transaction = Transaction::find($transactionId);
+            if (!$transaction) {
+                return response()->json(['error' => 'Transaction not found'], 404);
+            }
+
+            // Delete the transaction
+            $transaction->delete();
+
+            return response()->json(['message' => 'Transaction deleted successfully'], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to delete transaction', [
+                'transaction_id' => $transactionId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json(['error' => 'Failed to delete transaction: ' . $e->getMessage()], 500);
         }
     }
 
@@ -544,63 +662,125 @@ class AdminController extends Controller
     {
         try {
             $totalUsers = User::count();
-        $totalBalance = User::sum('balance');
-        $totalWithdrawals = User::sum('total_withdrawal');
+            $totalBalance = User::sum('balance');
+            $totalWithdrawals = User::sum('total_withdrawal');
 
-        // Get recent users with their latest transactions
-        $recentUsers = User::select('id', 'name', 'email', 'balance', 'total_withdrawal')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'balance' => (float)$user->balance,
-                    'total_withdrawal' => (float)$user->total_withdrawal
-                ];
-            });
+            // Get recent users with their latest transactions
+            $recentUsers = User::select('id', 'name', 'email', 'phone_number', 'balance', 'total_withdrawal')
+                ->latest()
+                ->take(5)
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone_number' => $user->phone_number,
+                        'balance' => (float)$user->balance,
+                        'total_withdrawal' => (float)$user->total_withdrawal
+                    ];
+                });
 
-        // Updated to use the correct relationship name 'transactions'
-        $recentUsers = User::with(['transactions' => function($query) {
-            $query->latest()->take(5);
-        }])->latest()->take(5)->get();
+            // Updated to use the correct relationship name 'transactions'
+            $recentUsers = User::with(['transactions' => function($query) {
+                $query->latest()->take(5);
+            }])->latest()->take(5)->get();
 
-        $transactions = Transaction::with('user')
-            ->latest()
-            ->take(10)
-            ->get()
-            ->map(function ($transaction) {
-                return [
-                    'id' => $transaction->id,
-                    'type' => $transaction->type,
-                    'amount' => $transaction->amount,
-                    'status' => $transaction->status,
-                    'description' => $transaction->description,
-                    'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
-                    'visible_to_user' => $transaction->visible_to_user,
-                    'user' => [
-                        'id' => $transaction->user->id,
-                        'name' => $transaction->user->name,
-                        'email' => $transaction->user->email
-                    ]
-                ];
-            });
+            $transactions = Transaction::with('user')
+                ->latest()
+                ->take(10)
+                ->get()
+                ->map(function ($transaction) {
+                    return [
+                        'id' => $transaction->id,
+                        'type' => $transaction->type,
+                        'amount' => $transaction->amount,
+                        'status' => $transaction->status,
+                        'description' => $transaction->description,
+                        'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
+                        'visible_to_user' => $transaction->visible_to_user,
+                        'user' => [
+                            'id' => $transaction->user->id,
+                            'name' => $transaction->user->name,
+                            'email' => $transaction->user->email
+                        ]
+                    ];
+                });
 
-        return [
-            'total_users' => $totalUsers,
-            'total_balance' => (float)$totalBalance,
-            'total_withdrawals' => (float)$totalWithdrawals,
-            'recent_users' => $recentUsers,
-            'transactions' => $transactions
-        ];
-        } catch (\Exception $e) {
-            Log::error('Error in getDashboardData:', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            throw $e;
-        }
+            return [
+                'total_users' => $totalUsers,
+                'total_balance' => (float)$totalBalance,
+                'total_withdrawals' => (float)$totalWithdrawals,
+                'recent_users' => $recentUsers,
+                'transactions' => $transactions
+            ];
+            } catch (\Exception $e) {
+                Log::error('Error in getDashboardData:', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                throw $e;
+            }
     }
+
+    // Email notification methods
+    // private function sendBalanceUpdateEmail($user, $originalBalance, $originalWithdrawal)
+    // {
+    //     if (!$user || !$user->email) {
+    //         Log::error('Cannot send balance update email: Invalid user or email');
+    //         return;
+    //     }
+
+    //     $data = [
+    //         'name' => $user->name,
+    //         'email' => $user->email,
+    //         'subject' => 'Coin Mining Stock - Account Balance Update',
+    //         'body' => "Dear {$user->name},\n\nYour account balance has been updated by an administrator.\n\nPrevious Balance: $" . number_format($originalBalance, 2) . 
+    //                 "\nNew Balance: $" . number_format($user->balance, 2) . 
+    //                 "\n\nPrevious Total Withdrawal: $" . number_format($originalWithdrawal, 2) . 
+    //                 "\nNew Total Withdrawal: $" . number_format($user->total_withdrawal, 2) . 
+    //                 "\n\nIf you have any questions about this update, please contact our support team.\n\nBest regards,\nCoin Mining Stock Team"
+    //     ];
+
+    //     Mail::send([], [], function ($message) use ($data) {
+    //         $message->to($data['email'])
+    //             ->subject($data['subject'])
+    //             ->setBody($data['body'], 'text/plain');
+    //     });
+
+    //     Log::info('Balance update email sent to: ' . $user->email);
+    // }
+
+    // private function sendTransactionNotificationEmail($user, $transaction)
+    // {
+    //     if (!$user || !$user->email) {
+    //         Log::error('Cannot send transaction notification email: Invalid user or email');
+    //         return;
+    //     }
+
+    //     $transactionType = ucfirst($transaction->type);
+    //     $amount = number_format($transaction->amount, 2);
+
+    //     $data = [
+    //         'name' => $user->name,
+    //         'email' => $user->email,
+    //         'subject' => "Coin Mining Stock - {$transactionType} Transaction Notification",
+    //         'body' => "Dear {$user->name},\n\nA new {$transaction->type} transaction has been recorded on your account.\n\n" .
+    //                 "Transaction Details:\n" .
+    //                 "Type: {$transactionType}\n" .
+    //                 "Amount: ${$amount}\n" .
+    //                 "Status: {$transaction->status}\n" .
+    //                 "Date: " . $transaction->created_at->format('Y-m-d H:i:s') . "\n\n" .
+    //                 "If you did not authorize this transaction, please contact our support team immediately.\n\n" .
+    //                 "Best regards,\nCoin Mining Stock"
+    //     ];
+
+    //     Mail::send([], [], function ($message) use ($data) {
+    //         $message->to($data['email'])
+    //             ->subject($data['subject'])
+    //             ->setBody($data['body'], 'text/plain');
+    //     });
+
+    //     Log::info('Transaction notification email sent to: ' . $user->email);
+    // }
 }

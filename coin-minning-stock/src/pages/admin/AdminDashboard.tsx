@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { useAuth } from "../../contexts/AuthContex";
 import LogoutModal from "../../components/LogoutModal";
+import DeleteConfirmationModal from "../../components/DeleteConfirmationModal";
 import UpdateUserModal from "../../components/UpdateUserModal";
 import { Button } from "../../components/ui/button";
 import {
@@ -27,6 +28,7 @@ interface User {
 	id: number;
 	name: string;
 	email: string;
+	phone_number: number;
 	balance: number;
 	total_withdrawal: number;
 	transactions?: Transaction[];
@@ -75,6 +77,15 @@ const AdminDashboard: FC = () => {
 	const [allUsers, setAllUsers] = useState<User[]>([]);
 	const [showAllUsers, setShowAllUsers] = useState(false);
 	const [loadingAllUsers, setLoadingAllUsers] = useState(false);
+
+	// Delete confirmation modals
+	const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
+	const [userToDelete, setUserToDelete] = useState<number | null>(null);
+	const [showDeleteTransactionModal, setShowDeleteTransactionModal] =
+		useState(false);
+	const [transactionToDelete, setTransactionToDelete] = useState<number | null>(
+		null,
+	);
 
 	useEffect(() => {
 		const token = localStorage.getItem("admin_token");
@@ -226,42 +237,61 @@ const AdminDashboard: FC = () => {
 		}
 	};
 
-	const handleDeleteUser = async (userId: number) => {
-		if (window.confirm("Are you sure you want to delete this user?")) {
-			try {
-				const token = localStorage.getItem("admin_token");
+	const confirmDeleteUser = (userId: number) => {
+		setUserToDelete(userId);
+		setShowDeleteUserModal(true);
+	};
 
-				await axios.delete(
-					`https://api.elitefarmmine.com/api/admin/users/${userId}`,
-					{
-						headers: { Authorization: `Bearer ${token}` },
-					},
-				);
-				toast.success("User deleted successfully");
-				fetchDashboardData();
-			} catch (error) {
-				console.error("Failed to delete user:", error);
-				toast.error("Failed to delete user");
+	const confirmDeleteTransaction = (transactionId: number) => {
+		setTransactionToDelete(transactionId);
+		setShowDeleteTransactionModal(true);
+	};
+
+	const handleDeleteUser = async () => {
+		if (!userToDelete) return;
+		try {
+			const token = localStorage.getItem("admin_token");
+
+			await axios.delete(
+				`https://api.elitefarmmine.com/api/admin/users/${userToDelete}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
+			toast.success("User deleted successfully");
+			fetchDashboardData();
+
+			// If we're viewing all users, update that list too
+			if (showAllUsers) {
+				setAllUsers(allUsers.filter((user) => user.id !== userToDelete));
 			}
+		} catch (error) {
+			console.error("Failed to delete user:", error);
+			toast.error("Failed to delete user");
+		} finally {
+			setShowDeleteUserModal(false);
+			setUserToDelete(null);
 		}
 	};
 
-	const handleDeleteTransaction = async (transactionId: number) => {
-		if (window.confirm("Are you sure you want to delete this transaction?")) {
-			try {
-				const token = localStorage.getItem("admin_token");
-				await axios.delete(
-					`https://api.elitefarmmine.com/api/admin/transactions/${transactionId}`,
-					{
-						headers: { Authorization: `Bearer ${token}` },
-					},
-				);
-				toast.success("Transaction deleted successfully");
-				fetchDashboardData();
-			} catch (error) {
-				console.error("Failed to delete transaction:", error);
-				toast.error("Failed to delete transaction");
-			}
+	const handleDeleteTransaction = async () => {
+		if (!transactionToDelete) return;
+		try {
+			const token = localStorage.getItem("admin_token");
+			await axios.delete(
+				`https://api.elitefarmmine.com/api/admin/transactions/${transactionToDelete}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
+			toast.success("Transaction deleted successfully");
+			fetchDashboardData();
+		} catch (error) {
+			console.error("Failed to delete transaction:", error);
+			toast.error("Failed to delete transaction");
+		} finally {
+			setShowDeleteTransactionModal(false);
+			setTransactionToDelete(null);
 		}
 	};
 
@@ -382,6 +412,7 @@ const AdminDashboard: FC = () => {
 								<TableRow>
 									<TableHead>Name</TableHead>
 									<TableHead>Email</TableHead>
+									<TableHead>Phone Number</TableHead>
 									<TableHead>Balance</TableHead>
 									<TableHead>Total Withdrawal</TableHead>
 									<TableHead>Actions</TableHead>
@@ -394,6 +425,7 @@ const AdminDashboard: FC = () => {
 										<TableRow key={user.id}>
 											<TableCell>{user.name}</TableCell>
 											<TableCell>{user.email}</TableCell>
+											<TableCell>{Number(user.phone_number)}</TableCell>
 											<TableCell>
 												${(Number(user.balance) || 0).toFixed(2)}
 											</TableCell>
@@ -422,7 +454,7 @@ const AdminDashboard: FC = () => {
 													<Button
 														variant='destructive'
 														size='sm'
-														onClick={() => handleDeleteUser(user.id)}>
+														onClick={() => confirmDeleteUser(user.id)}>
 														Delete
 													</Button>
 												</div>
@@ -539,7 +571,9 @@ const AdminDashboard: FC = () => {
 											<Button
 												variant='destructive'
 												size='sm'
-												onClick={() => handleDeleteTransaction(transaction.id)}>
+												onClick={() =>
+													confirmDeleteTransaction(transaction.id)
+												}>
 												Delete
 											</Button>
 										</TableCell>
@@ -568,6 +602,24 @@ const AdminDashboard: FC = () => {
 					onUserUpdate={fetchDashboardData}
 				/>
 			)}
+
+			<DeleteConfirmationModal
+				isOpen={showDeleteUserModal}
+				onClose={() => setShowDeleteUserModal(false)}
+				onConfirm={handleDeleteUser}
+				title='Delete User'
+				description='Are you sure you want to delete this user?'
+				itemType='user'
+			/>
+
+			<DeleteConfirmationModal
+				isOpen={showDeleteTransactionModal}
+				onClose={() => setShowDeleteTransactionModal(false)}
+				onConfirm={handleDeleteTransaction}
+				title='Delete Transaction'
+				description='Are you sure you want to delete this transaction?'
+				itemType='transaction'
+			/>
 		</div>
 	);
 };

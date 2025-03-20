@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller 
 {
@@ -42,6 +43,14 @@ class UsersController extends Controller
         ]);
 
         $token = JWTAuth::fromUser($user);
+
+        // Send registration confirmation email
+        // try {
+        //     $this->sendRegistrationEmail($user);
+        // } catch (\Exception $e) {
+        //     Log::error('Failed to send registration email: ' . $e->getMessage());
+        //     // Continue with registration even if email fails
+        // }
 
         return response()->json([
             'message' => 'User Registered',
@@ -82,6 +91,14 @@ class UsersController extends Controller
             }
 
         $token = JWTAuth::fromUser($user);
+
+        // Send login notification email
+        // try {
+        //     $this->sendLoginNotificationEmail($user);
+        // } catch (\Exception $e) {
+        //     Log::error('Failed to send login notification email: ' . $e->getMessage());
+        //     // Continue with login even if email fails
+        // }
 
         return response()->json([
             'message' => 'Login Successfully',
@@ -142,19 +159,66 @@ class UsersController extends Controller
 
     //Function to logout
     public function logout(Request $request)
-{
-    try {
-        $token = JWTAuth::getToken();
+    {
+        try {
+            $token = JWTAuth::getToken();
 
-        if (!$token) {
-            return response()->json(['error' => 'Token not provided'], 401);
+            if (!$token) {
+                return response()->json(['error' => 'Token not provided'], 401);
+            }
+
+            JWTAuth::invalidate($token);
+            return response()->json(['message' => 'Logout Successfully'], 200); // ✅ Return 200 for success
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['error' => 'Failed to logout'], 401);
         }
-
-        JWTAuth::invalidate($token);
-        return response()->json(['message' => 'Logout Successfully'], 200); // ✅ Return 200 for success
-    } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-        return response()->json(['error' => 'Failed to logout'], 401);
     }
-}
+
+    // Email notification methods
+    // private function sendRegistrationEmail($user)
+    // {
+    //     if (!$user || !$user->email) {
+    //         Log::error('Cannot send registration email: Invalid user or email');
+    //         return;
+    //     }
+
+    //     $data = [
+    //         'name' => $user->name,
+    //         'email' => $user->email,
+    //         'subject' => 'Welcome to Elite Farm Mine - Registration Successful',
+    //         'body' => "Dear {$user->name},\n\nThank you for registering with Elite Farm Mine. Your account has been successfully created.\n\nUsername: {$user->username}\nEmail: {$user->email}\n\nYou can now log in to your account and start exploring our platform.\n\nBest regards,\nElite Farm Mine Team"
+    //     ];
+
+    //     Mail::send([], [], function ($message) use ($data) {
+    //         $message->to($data['email'])
+    //             ->subject($data['subject'])
+    //             ->setBody($data['body'], 'text/plain');
+    //     });
+
+    //     Log::info('Registration email sent to: ' . $user->email);
+    // }
+
+    // private function sendLoginNotificationEmail($user)
+    // {
+    //     if (!$user || !$user->email) {
+    //         Log::error('Cannot send login notification email: Invalid user or email');
+    //         return;
+    //     }
+
+    //     $data = [
+    //         'name' => $user->name,
+    //         'email' => $user->email,
+    //         'subject' => 'Elite Farm Mine - Login Notification',
+    //         'body' => "Dear {$user->name},\n\nWe detected a new login to your Elite Farm Mine account.\n\nIf this was you, no action is needed. If you did not log in, please contact our support team immediately.\n\nTime: " . now()->format('Y-m-d H:i:s') . "\n\nBest regards,\nElite Farm Mine Team"
+    //     ];
+
+    //     Mail::send([], [], function ($message) use ($data) {
+    //         $message->to($data['email'])
+    //             ->subject($data['subject'])
+    //             ->setBody($data['body'], 'text/plain');
+    //     });
+
+    //     Log::info('Login notification email sent to: ' . $user->email);
+    // }
 
 }

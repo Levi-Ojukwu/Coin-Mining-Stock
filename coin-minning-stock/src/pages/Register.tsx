@@ -261,15 +261,27 @@ const Register = () => {
       }, 2000)
 		} catch (err: any) {
 			setLoading(false); //Set loading to false when the request is done
+      console.error("Registration error:", err.response?.data); // Log the full error response
 
 			//Check if there are validation errors
-			if (err.response?.data?.errors) {
-				setError(
-					err.response.data.errors.email ||
-						"Registration failed. Please try again.",
-				);
+			if (err.response?.data?.error) {
+        // Handle the error object which contains field-specific errors
+        const errorData = err.response.data.error;
+
+        // Check for specific field errors
+        if (errorData.email) {
+          setError(errorData.email[0]); // Display the first email error
+        } else if (errorData.username) {
+            setError(errorData.username[0]); // Display the first username error
+        } else if (errorData.password) {
+            setError(errorData.password[0]); // Display the first password error
+        } else {
+            // If no specific field error, display a generic message
+            setError("Please check your form for errors.");
+        }
+				
 			} else {
-				setError("Something went wrong.");
+				setError("Registration failed. Please try again.");
 			}
 		}
 	};
