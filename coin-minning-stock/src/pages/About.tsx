@@ -84,7 +84,7 @@ const About = () => {
 
 				<div>
 					<h2 className='mt-10 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl mb-5'>
-						Who We Are
+						Who We Are!
 					</h2>
 
 					<div className='md:flex justify-between'>
