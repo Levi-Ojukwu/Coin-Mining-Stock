@@ -146,7 +146,7 @@ const About = () => {
 							</div>
 						</div>
 						<div>
-							<h2 className='text-primary mt-10 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl mt-10'>
+							<h2 className='text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-bold text-2xl md:text-3xl mt-10'>
 								Our Vision
 							</h2>
 
