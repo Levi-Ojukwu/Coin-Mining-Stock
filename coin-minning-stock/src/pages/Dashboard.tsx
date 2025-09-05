@@ -107,7 +107,7 @@ export default function Dashboard() {
 			console.log("Fetching dashboard data..."); // Debug log
 
 			const response = await axios.get<DashboardData>(
-				"https://api.elitefarmmine.com/api/dashboard",
+				"http://127.0.0.1:8000/api/dashboard",
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -167,7 +167,7 @@ export default function Dashboard() {
 			}
 
 			await axios.post(
-				"https://api.elitefarmmine.com/api/logout",
+				"http://127.0.0.1:8000/api/logout",
 				{},
 				{
 					headers: { Authorization: `Bearer ${token}` },

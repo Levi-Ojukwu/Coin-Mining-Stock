@@ -69,7 +69,7 @@ const UpdateUserTransactions: React.FC = () => {
 
 			// Fetch user details
 			const response = await axios.get(
-				`https://api.elitefarmmine.com/api/admin/users/${userId}/transactions`,
+				`http://127.0.0.1:8000/api/admin/users/${userId}/transactions`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
@@ -132,7 +132,7 @@ const UpdateUserTransactions: React.FC = () => {
 			// }
 
 			const response = await axios.post(
-				`https://api.elitefarmmine.com/api/admin/users/${userId}/transactions`,
+				`http://127.0.0.1:8000/api/admin/users/${userId}/transactions`,
 				{
 					type: newTransactionType,
 					amount: amount.toFixed(2), // Ensure proper decimal format

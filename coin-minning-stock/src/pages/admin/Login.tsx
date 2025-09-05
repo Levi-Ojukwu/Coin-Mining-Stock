@@ -46,7 +46,7 @@ const AdminLogin = () => {
 			// const response = await axios.post("http://127.0.0.1:8000/api/admin/login", formData)
 
 			const response = await axios.post(
-				"https://api.elitefarmmine.com/api/admin/login",
+				"http://127.0.0.1:8000/api/admin/login",
 				formData,
 				{
 					headers: {

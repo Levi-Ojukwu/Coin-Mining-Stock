@@ -37,7 +37,7 @@ const onSubmit = async (data: LoginFormData) => {
   setSuccess("")
 
   try {
-    const response = await axios.post("https://api.elitefarmmine.com/api/login", data)
+    const response = await axios.post("http://127.0.0.1:8000/api/login", data)
 
     console.log("Response:", response.data)
     if (response.data.token && response.data.user) {

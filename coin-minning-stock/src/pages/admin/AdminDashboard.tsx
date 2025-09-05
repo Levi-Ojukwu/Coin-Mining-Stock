@@ -112,7 +112,7 @@ const AdminDashboard: FC = () => {
 			const response = await axios.get<{
 				message: string;
 				data: DashboardData;
-			}>("https://api.elitefarmmine.com/api/admin/dashboard", {
+			}>("http://127.0.0.1:8000/api/admin/dashboard", {
 				headers: {
 					Authorization: `Bearer ${token}`,
 					Accept: "application/json",
@@ -151,7 +151,7 @@ const AdminDashboard: FC = () => {
 			const response = await axios.get<{
 				message: string;
 				users: User[];
-			}>("https://api.elitefarmmine.com/api/admin/users", {
+			}>("http://127.0.0.1:8000/api/admin/users", {
 				headers: {
 					Authorization: `Bearer ${token}`,
 					Accept: "application/json",
@@ -194,7 +194,7 @@ const AdminDashboard: FC = () => {
 				return;
 			}
 			const response = await axios.post(
-				"https://api.elitefarmmine.com/api/admin/logout",
+				"http://127.0.0.1:8000/api/admin/logout",
 				{}, // Empty body
 				{
 					headers: {
@@ -253,7 +253,7 @@ const AdminDashboard: FC = () => {
 			const token = localStorage.getItem("admin_token");
 
 			await axios.delete(
-				`https://api.elitefarmmine.com/api/admin/users/${userToDelete}`,
+				`http://127.0.0.1:8000/api/admin/users/${userToDelete}`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
 				},
@@ -279,7 +279,7 @@ const AdminDashboard: FC = () => {
 		try {
 			const token = localStorage.getItem("admin_token");
 			await axios.delete(
-				`https://api.elitefarmmine.com/api/admin/transactions/${transactionToDelete}`,
+				`http://127.0.0.1:8000/api/admin/transactions/${transactionToDelete}`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
 				},
