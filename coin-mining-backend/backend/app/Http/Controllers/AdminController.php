@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
-// use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -539,7 +539,7 @@ class AdminController extends Controller
         }
     }
 
-    // Function to delete user
+    //Function to delete user
     public function deleteUser($userId)
     {
         try {
@@ -723,64 +723,64 @@ class AdminController extends Controller
             }
     }
 
-    // Email notification methods
-    // private function sendBalanceUpdateEmail($user, $originalBalance, $originalWithdrawal)
-    // {
-    //     if (!$user || !$user->email) {
-    //         Log::error('Cannot send balance update email: Invalid user or email');
-    //         return;
-    //     }
+    //Email notification methods
+    private function sendBalanceUpdateEmail($user, $originalBalance, $originalWithdrawal)
+    {
+        if (!$user || !$user->email) {
+            Log::error('Cannot send balance update email: Invalid user or email');
+            return;
+        }
 
-    //     $data = [
-    //         'name' => $user->name,
-    //         'email' => $user->email,
-    //         'subject' => 'Coin Mining Stock - Account Balance Update',
-    //         'body' => "Dear {$user->name},\n\nYour account balance has been updated by an administrator.\n\nPrevious Balance: $" . number_format($originalBalance, 2) . 
-    //                 "\nNew Balance: $" . number_format($user->balance, 2) . 
-    //                 "\n\nPrevious Total Withdrawal: $" . number_format($originalWithdrawal, 2) . 
-    //                 "\nNew Total Withdrawal: $" . number_format($user->total_withdrawal, 2) . 
-    //                 "\n\nIf you have any questions about this update, please contact our support team.\n\nBest regards,\nCoin Mining Stock Team"
-    //     ];
+        $data = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'subject' => 'Coin Mining Stock - Account Balance Update',
+            'body' => "Dear {$user->name},\n\nYour account balance has been updated by an administrator.\n\nPrevious Balance: $" . number_format($originalBalance, 2) . 
+                    "\nNew Balance: $" . number_format($user->balance, 2) . 
+                    "\n\nPrevious Total Withdrawal: $" . number_format($originalWithdrawal, 2) . 
+                    "\nNew Total Withdrawal: $" . number_format($user->total_withdrawal, 2) . 
+                    "\n\nIf you have any questions about this update, please contact our support team.\n\nBest regards,\nCoin Mining Stock Team"
+        ];
 
-    //     Mail::send([], [], function ($message) use ($data) {
-    //         $message->to($data['email'])
-    //             ->subject($data['subject'])
-    //             ->setBody($data['body'], 'text/plain');
-    //     });
+        Mail::send([], [], function ($message) use ($data) {
+            $message->to($data['email'])
+                ->subject($data['subject'])
+                ->setBody($data['body'], 'text/plain');
+        });
 
-    //     Log::info('Balance update email sent to: ' . $user->email);
-    // }
+        Log::info('Balance update email sent to: ' . $user->email);
+    }
 
-    // private function sendTransactionNotificationEmail($user, $transaction)
-    // {
-    //     if (!$user || !$user->email) {
-    //         Log::error('Cannot send transaction notification email: Invalid user or email');
-    //         return;
-    //     }
+    private function sendTransactionNotificationEmail($user, $transaction)
+    {
+        if (!$user || !$user->email) {
+            Log::error('Cannot send transaction notification email: Invalid user or email');
+            return;
+        }
 
-    //     $transactionType = ucfirst($transaction->type);
-    //     $amount = number_format($transaction->amount, 2);
+        $transactionType = ucfirst($transaction->type);
+        $amount = number_format($transaction->amount, 2);
 
-    //     $data = [
-    //         'name' => $user->name,
-    //         'email' => $user->email,
-    //         'subject' => "Coin Mining Stock - {$transactionType} Transaction Notification",
-    //         'body' => "Dear {$user->name},\n\nA new {$transaction->type} transaction has been recorded on your account.\n\n" .
-    //                 "Transaction Details:\n" .
-    //                 "Type: {$transactionType}\n" .
-    //                 "Amount: ${$amount}\n" .
-    //                 "Status: {$transaction->status}\n" .
-    //                 "Date: " . $transaction->created_at->format('Y-m-d H:i:s') . "\n\n" .
-    //                 "If you did not authorize this transaction, please contact our support team immediately.\n\n" .
-    //                 "Best regards,\nCoin Mining Stock"
-    //     ];
+        $data = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'subject' => "Coin Mining Stock - {$transactionType} Transaction Notification",
+            'body' => "Dear {$user->name},\n\nA new {$transaction->type} transaction has been recorded on your account.\n\n" .
+                    "Transaction Details:\n" .
+                    "Type: {$transactionType}\n" .
+                    "Amount: ${$amount}\n" .
+                    "Status: {$transaction->status}\n" .
+                    "Date: " . $transaction->created_at->format('Y-m-d H:i:s') . "\n\n" .
+                    "If you did not authorize this transaction, please contact our support team immediately.\n\n" .
+                    "Best regards,\nCoin Mining Stock"
+        ];
 
-    //     Mail::send([], [], function ($message) use ($data) {
-    //         $message->to($data['email'])
-    //             ->subject($data['subject'])
-    //             ->setBody($data['body'], 'text/plain');
-    //     });
+        Mail::send([], [], function ($message) use ($data) {
+            $message->to($data['email'])
+                ->subject($data['subject'])
+                ->setBody($data['body'], 'text/plain');
+        });
 
-    //     Log::info('Transaction notification email sent to: ' . $user->email);
-    // }
+        Log::info('Transaction notification email sent to: ' . $user->email);
+    }
 }
