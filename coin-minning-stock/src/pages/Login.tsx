@@ -143,57 +143,6 @@ const togglePasswordVisibility = () => {
         )}
       </div>
     </div>
-			{/* <div className='d-flex justify-content-center align-items-center vh-100 bg-light'>
-				<div
-					className='card p-4 shadow'
-					style={{ maxWidth: "400px", width: "100%" }}>
-					<h2 className='text-center mb-4'>Login</h2>
-					<form onSubmit={handleSubmit}>
-						<div className='mb-3'>
-							<label
-								htmlFor='email'
-								className='form-label'>
-								Email:
-							</label>
-							<input
-								type='email'
-								id='email'
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								className='form-control'
-								placeholder='Enter your email'
-								required
-							/>
-						</div>
-						<div className='mb-3'>
-							<label
-								htmlFor='password'
-								className='form-label'>
-								Password:
-							</label>
-							<input
-								type='password'
-								id='password'
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								className='form-control'
-								placeholder='Enter your password'
-								required
-							/>
-						</div>
-						<button
-							type='submit'
-							className='btn btn-primary w-100'
-							disabled={loading}>
-							{loading ? "Logging in..." : "Login"}
-						</button>
-						{error && <div className='alert alert-danger mt-3'>{error}</div>}
-						{success && (
-							<div className='alert alert-success mt-3'>{success}</div>
-						)}
-					</form>
-				</div>
-			</div> */}
 		</>
 	);
 };

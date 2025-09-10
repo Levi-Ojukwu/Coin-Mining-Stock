@@ -31,6 +31,7 @@ import CryptoAddresses from "../components/CryptoAddresses";
 import WithdrawalPage from "../components/WithdrawalPage";
 import DefaultPlan from "../components/DefaultPlan";
 import LogoutModal from "../components/LogoutModal";
+import NotificationBell from "../components/NotificationBell";
 
 ChartJS.register(
 	CategoryScale,
@@ -64,11 +65,23 @@ interface Transaction {
 	visible_to_user: boolean;
 }
 
+interface Notification {
+	id: number;
+	type: string;
+	title: string;
+	message: string;
+	data: any;
+	is_read: boolean;
+	created_at: string;
+}
+
 interface DashboardData {
 	user: User;
 	balance: number;
 	totalBalance: number;
 	transactions: Transaction[];
+	notifications: Notification[];
+	unread_notifications_count: number;
 }
 
 export default function Dashboard() {
@@ -200,6 +213,7 @@ export default function Dashboard() {
 				return (
 					<>
 						<CoinlibWidget />
+
 						<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10'>
 							<div className='bg-gradient-to-br from-[#e4f33d3c] to-[#00565c46] px-5 py-7 rounded-lg shadow-md'>
 								<h2 className='text-2xl text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-semibold mb-4'>
@@ -250,6 +264,57 @@ export default function Dashboard() {
 								</p>
 							</div>
 						</div>
+
+						{/* Recent Notifications Section */}
+						{dashboardData?.notifications &&
+							dashboardData.notifications.length > 0 && (
+								<div className='mt-10 bg-white p-6 rounded-lg shadow-md'>
+									<h2 className='text-2xl font-semibold mb-6 text-primary'>
+										Recent Notifications
+									</h2>
+									<div className='space-y-4'>
+										{dashboardData.notifications
+											.slice(0, 5)
+											.map((notification) => (
+												<div
+													key={notification.id}
+													className={`p-4 rounded-lg border-l-4 ${
+														notification.type === "deposit"
+															? "border-green-500 bg-green-50"
+															: notification.type === "withdrawal"
+															? "border-red-500 bg-red-50"
+															: "border-blue-500 bg-blue-50"
+													} ${
+														!notification.is_read ? "ring-2 ring-blue-200" : ""
+													}`}>
+													<div className='flex justify-between items-start'>
+														<div>
+															<h3 className='font-semibold text-gray-800'>
+																{notification.title}
+															</h3>
+															<p className='text-gray-600 mt-1'>
+																{notification.message}
+															</p>
+														</div>
+														<span className='text-sm text-gray-500'>
+															{new Date(
+																notification.created_at,
+															).toLocaleDateString()}
+														</span>
+													</div>
+													{!notification.is_read && (
+														<div className='mt-2'>
+															<span className='inline-block w-2 h-2 bg-blue-500 rounded-full'></span>
+															<span className='ml-2 text-sm text-blue-600'>
+																New
+															</span>
+														</div>
+													)}
+												</div>
+											))}
+									</div>
+								</div>
+							)}
 					</>
 				);
 			case "transactions":
@@ -409,18 +474,28 @@ export default function Dashboard() {
 
 			{/* Main content */}
 			<main className='flex-1 p-8 lg:ml-64 overflow-x-auto'>
-				<div className='mb-10'>
-					<h1 className='text-base lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-1'>
-						User Mining Dashboard
-					</h1>
-					{dashboardData?.user && (
-						<div className='flex gap-1 items-center ml-2'>
-							<FaHandshake className='w-9 h-9 text-gray-600' />
-							<p className='text-gray-600 font-semibold text-sm lg:text-xl'>
-								<span>Welcome back, </span>
-								{dashboardData.user.name}! Your mining dashboard at a glance
-							</p>
-						</div>
+				<div className='mb-10 flex justify-between items-start'>
+					<div>
+						<h1 className='text-base lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-1'>
+							User Mining Dashboard
+						</h1>
+						{dashboardData?.user && (
+							<div className='flex gap-1 items-center ml-2'>
+								<FaHandshake className='w-9 h-9 text-gray-600' />
+								<p className='text-gray-600 font-semibold text-sm lg:text-xl'>
+									<span>Welcome back, </span>
+									{dashboardData.user.name}! Your mining dashboard at a glance
+								</p>
+							</div>
+						)}
+					</div>
+
+					{/* Notification Bell */}
+					{dashboardData && (
+						<NotificationBell
+							unreadCount={dashboardData.unread_notifications_count || 0}
+							onNotificationUpdate={fetchDashboardData}
+						/>
 					)}
 				</div>
 				{error && <p className='text-red-500 text-center mb-4'>{error}</p>}
