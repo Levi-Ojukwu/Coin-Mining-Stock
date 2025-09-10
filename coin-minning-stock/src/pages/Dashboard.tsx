@@ -474,7 +474,7 @@ export default function Dashboard() {
 
 			{/* Main content */}
 			<main className='flex-1 p-8 lg:ml-64 overflow-x-auto'>
-				<div className='mb-10 flex justify-between items-start'>
+				<div className='mb-1 flex justify-between items-start mr-5'>
 					<div>
 						<h1 className='text-base lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-1'>
 							User Mining Dashboard
@@ -490,13 +490,15 @@ export default function Dashboard() {
 						)}
 					</div>
 
-					{/* Notification Bell */}
-					{dashboardData && (
-						<NotificationBell
-							unreadCount={dashboardData.unread_notifications_count || 0}
-							onNotificationUpdate={fetchDashboardData}
-						/>
-					)}
+					<div className="">
+						{/* Notification Bell */}
+						{dashboardData && (
+							<NotificationBell
+								unreadCount={dashboardData.unread_notifications_count || 0}
+								onNotificationUpdate={fetchDashboardData}
+							/>
+						)}
+					</div>
 				</div>
 				{error && <p className='text-red-500 text-center mb-4'>{error}</p>}
 				{renderContent()}

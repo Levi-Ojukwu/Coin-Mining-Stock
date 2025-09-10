@@ -137,21 +137,21 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ unreadCount, onNoti
   }
 
   return (
-    <div className="relative">
+    <div className="">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-primary transition-colors"
+        className="relative p-2 text-gray-500 hover:text-primary transition-colors"
       >
-        <FiBell size={24} />
+        <FiBell size={28} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+          <span className="absolute top-0 -right-1 text-red-400 text-xs font-bold">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
+        <div className="absolute right-5 mt-1 w-80 bg-gray-100 rounded-lg shadow-lg border border-gray-200 z-50">
           <div className="p-4 border-b flex justify-between items-center">
             <h3 className="font-semibold text-gray-800">Notifications</h3>
             {unreadCount > 0 && (
