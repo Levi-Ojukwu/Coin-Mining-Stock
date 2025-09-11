@@ -174,13 +174,18 @@ const AdminDashboard: FC = () => {
 		}
 	};
 
-	const handleUpdateUser = (userId: number) => {
-		navigate(`/admin/users/${userId}/update-balance`);
-	};
+	// Updated to use the new transaction processing page
+	const handleProcessTransaction = (userId: number) => {
+		navigate(`/admin/users/${userId}/update-balance`)
+	}
 
-	const handleUpdateTransactions = (userId: number) => {
-		navigate(`/admin/users/${userId}/transactions`);
-	};
+	// const handleUpdateUser = (userId: number) => {
+	// 	navigate(`/admin/users/${userId}/update-balance`);
+	// };
+
+	// const handleUpdateTransactions = (userId: number) => {
+	// 	navigate(`/admin/users/${userId}/transactions`);
+	// };
 
 	const handleLogout = async () => {
 		try {
@@ -437,20 +442,17 @@ const AdminDashboard: FC = () => {
 													<Button
 														variant='outline'
 														size='sm'
-														onClick={() => {
-															handleUpdateUser(user.id);
-															setSelectedUser(user);
-															setShowUpdateUserModal(true);
-														}}>
-														Update Balance
+														onClick={() => handleProcessTransaction(user.id)}
+                          className="text-blue-600 hover:text-blue-900">
+														Process Transaction
 													</Button>
-													<Button
+													{/* <Button
 														variant='outline'
 														size='sm'
 														onClick={() => handleUpdateTransactions(user.id)}
 														className='text-green-600 hover:text-green-900'>
 														Transactions
-													</Button>
+													</Button> */}
 													<Button
 														variant='destructive'
 														size='sm'
@@ -463,44 +465,6 @@ const AdminDashboard: FC = () => {
 									),
 								)}
 
-								{/* {dashboardData?.recent_users.map((user) => (
-									<TableRow key={user.id}>
-										<TableCell>{user.name}</TableCell>
-										<TableCell>{user.email}</TableCell>
-										<TableCell>
-											${(Number(user.balance) || 0).toFixed(2)}
-										</TableCell>
-										<TableCell>
-											${(Number(user.total_withdrawal) || 0).toFixed(2)}
-										</TableCell>
-										<TableCell>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => {
-													handleUpdateUser(user.id);
-													setSelectedUser(user);
-													setShowUpdateUserModal(true);
-												}}>
-												Update Balance
-											</Button>
-											<Button
-												variant='outline'
-												size='sm'
-												onClick={() => handleUpdateTransactions(user.id)}
-												className='text-green-600 hover:text-green-900'>
-												Transactions
-											</Button>
-											<Button
-												variant='destructive'
-												size='sm'
-												onClick={() => handleDeleteUser(user.id)}
-												className='ml-2'>
-												Delete
-											</Button>
-										</TableCell>
-									</TableRow>
-								))} */}
 							</TableBody>
 						</Table>
 					</div>
@@ -626,143 +590,7 @@ const AdminDashboard: FC = () => {
 
 export default AdminDashboard;
 
-// <div className='min-h-screen bg-gray-100'>
-// 	<nav className='bg-white shadow-md'>
-// 		<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-// 			<div className='flex justify-between h-16'>
-// 				<div className='flex items-center'>
-// 					<h1 className='text-2xl font-bold text-primary'>
-// 						Admin Dashboard
-// 					</h1>
-// 				</div>
-// 				<div className='flex items-center'>
-// 					<Button
-// 						variant='outline'
-// 						onClick={() => setShowLogoutModal(true)}>
-// 						Logout
-// 					</Button>
-// 				</div>
-// 			</div>
-// 		</div>
-// 	</nav>
 
-// 	<main className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
-// 		{error && (
-// 			<div className='mb-4 p-4 text-red-700 bg-red-100 rounded-md'>
-// 				{error}
-// 			</div>
-// 		)}
 
-// 		<div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-// 			<div className='bg-white overflow-hidden shadow-sm rounded-lg p-6'>
-// 				<div className='text-sm font-medium text-gray-500'>Total Users</div>
-// 				<div className='mt-2 text-3xl font-semibold text-gray-900'>
-// 					{dashboardData?.total_users || 0}
-// 				</div>
-// 			</div>
-// 			<div className='bg-white overflow-hidden shadow-sm rounded-lg p-6'>
-// 				<div className='text-sm font-medium text-gray-500'>
-// 					Total Balance
-// 				</div>
-// 				<div className='mt-2 text-3xl font-semibold text-gray-900'>
-// 					${(Number(dashboardData?.total_balance) || 0).toFixed(2)}
-// 				</div>
-// 			</div>
-// 			<div className='bg-white overflow-hidden shadow-sm rounded-lg p-6'>
-// 				<div className='text-sm font-medium text-gray-500'>
-// 					Total Withdrawals
-// 				</div>
-// 				<div className='mt-2 text-3xl font-semibold text-gray-900'>
-// 					${(Number(dashboardData?.total_withdrawals) || 0).toFixed(2)}
-// 				</div>
-// 			</div>
-// 		</div>
 
-// 		<div className='bg-white shadow-md rounded-lg mb-8'>
-// 			<div className='px-4 py-5 sm:px-6'>
-// 				<h2 className='text-xl font-semibold text-gray-900'>
-// 					Recent Users
-// 				</h2>
-// 			</div>
-// 			<Table>
-// 				<TableHeader>
-// 					<TableRow>
-// 						<TableHead>Name</TableHead>
-// 						<TableHead>Email</TableHead>
-// 						<TableHead>Balance</TableHead>
-// 						<TableHead>Total Withdrawal</TableHead>
-// 					</TableRow>
-// 				</TableHeader>
-// 				<TableBody>
-// 					{dashboardData?.recent_users.map((user) => (
-// 						<TableRow key={user.id}>
-// 							<TableCell>{user.name}</TableCell>
-// 							<TableCell>{user.email}</TableCell>
-// 							<TableCell>
-// 								${(Number(user.balance) || 0).toFixed(2)}
-// 							</TableCell>
-// 							<TableCell>
-// 								${(Number(user.total_withdrawal) || 0).toFixed(2)}
-// 							</TableCell>
-// 						</TableRow>
-// 					))}
-// 				</TableBody>
-// 			</Table>
-// 		</div>
 
-// 		<div className='bg-white shadow-md rounded-lg'>
-// 			<div className='px-4 py-5 sm:px-6 flex justify-between items-center'>
-// 				<h2 className='text-xl font-semibold text-gray-900'>
-// 					Recent Transactions
-// 				</h2>
-// 				<Button
-// 					variant='outline'
-// 					onClick={fetchDashboardData}>
-// 					Refresh
-// 				</Button>
-// 			</div>
-// 			<Table>
-// 				<TableHeader>
-// 					<TableRow>
-// 						<TableHead>ID</TableHead>
-// 						<TableHead>User</TableHead>
-// 						<TableHead>Type</TableHead>
-// 						<TableHead>Amount</TableHead>
-// 						<TableHead>Status</TableHead>
-// 						<TableHead>Date</TableHead>
-// 					</TableRow>
-// 				</TableHeader>
-// 				<TableBody>
-// 					{dashboardData?.transactions.map((transaction) => (
-// 						<TableRow key={transaction.id}>
-// 							<TableCell>{transaction.id}</TableCell>
-// 							<TableCell>
-// 								{dashboardData.recent_users.find(
-// 									(user) => user.id === transaction.user_id,
-// 								)?.name || "Unknown"}
-// 							</TableCell>
-// 							<TableCell className='capitalize'>
-// 								{transaction.type}
-// 							</TableCell>
-// 							<TableCell>${transaction.amount.toFixed(2)}</TableCell>
-// 							<TableCell className='capitalize'>
-// 								{transaction.status}
-// 							</TableCell>
-// 							<TableCell>
-// 								{new Date(transaction.created_at).toLocaleDateString()}
-// 							</TableCell>
-// 						</TableRow>
-// 					))}
-// 				</TableBody>
-// 			</Table>
-// 		</div>
-// 	</main>
-
-// 	<LogoutModal
-// 		isOpen={showLogoutModal}
-// 		onClose={() => setShowLogoutModal(false)}
-// 		onConfirm={handleLogout}
-// 		title='Confirm Admin Logout'
-// 		description='Are you sure you want to logout from the admin dashboard?'
-// 	/>
-// </div>

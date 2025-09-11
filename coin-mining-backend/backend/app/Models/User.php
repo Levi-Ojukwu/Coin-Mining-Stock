@@ -78,4 +78,15 @@ class User extends Authenticatable implements JWTSubject
             'type' => 'user'
         ];
     }
+
+    // Add notifications relationship
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->hasMany(Notification::class)->where('is_read', false);
+    }
 }

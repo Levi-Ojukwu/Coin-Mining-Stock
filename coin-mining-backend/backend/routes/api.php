@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 // use App\Http\Controllers\AdminUserController;
 
 
@@ -21,6 +23,9 @@ Route::prefix('admin')->group(function () {
         Route::post('/users/{userId}/transactions', [AdminController::class, 'addTransaction']);
         Route::delete('/transactions/{transactionId}', [AdminController::class, 'deleteTransaction'])->name('admin.deleteTransaction');
         Route::get('/users/{userId}/transactions', [AdminController::class, 'getUserTransactions']);
+
+        // NEW ROUTE: Process user transactions (deposits/withdrawals)
+        Route::post('/users/{id}/process-transaction', [AdminController::class, 'processUserTransaction']);
         
         //User Management
         Route::post('/users/{userId}/update-balance', [AdminController::class, 'updateUserBalance']); // Changed from PUT to POST
@@ -35,6 +40,11 @@ Route::post('/login', [UsersController::class, 'login'])->name('user.login');
 Route::middleware('auth:user-api') -> group(function() {
     Route::get('/dashboard', [UsersController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [UsersController::class, 'logout'])->name('logout');
+
+    // Notification routes
+    Route::get('/notifications', [NotificationController::class, 'getUserNotifications']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 });
 
 

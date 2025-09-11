@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -226,7 +227,7 @@ class AdminController extends Controller
             $newBalance = number_format((float)$request->balance, 2, '.', '');
             $newTotalWithdrawal = number_format((float)$request->total_withdrawal, 2, '.', '');
 
-            // Store original values for email notification
+            // Store original values for notification
             $originalBalance = $user->balance;
             $originalWithdrawal = $user->total_withdrawal;
 
@@ -306,10 +307,8 @@ class AdminController extends Controller
 
             DB::commit();
 
-            // Send email notification about balance update
-            // if ($updatedUser->email) {
-            //     $this->sendBalanceUpdateEmail($updatedUser, $originalBalance, $originalWithdrawal);
-            // }
+            // Create in-app notification instead of sending email
+            NotificationService::createBalanceUpdateNotification($updatedUser, $originalBalance, $originalWithdrawal);
 
             // Log successful update
             Log::info('User balance updated successfully', [
@@ -479,13 +478,6 @@ class AdminController extends Controller
                 // Format amount to ensure proper decimal places
                 $amount = number_format((float)$request->amount, 2, '.', '');
 
-                // Check for sufficient balance if withdrawal
-                // if ($request->type === 'withdrawal' && $user->balance < $request->amount) {
-                //     throw new \Exception('Insufficient balance for withdrawal');
-                // }
-
-                // Create transaction (visible to user by default)
-
                 $transaction = new Transaction();
                 $transaction->user_id = $userId;
                 $transaction->type = $request->type;
@@ -497,10 +489,8 @@ class AdminController extends Controller
 
                 DB::commit();
 
-                // Send transaction notification email
-                // if ($user->email) {
-                //     $this->sendTransactionNotificationEmail($user, $transaction);
-                // }
+                // Create in-app notification instead of sending email
+                NotificationService::createTransactionNotification($user, $transaction);
 
                 // Log successful transaction
                 Log::info('Transaction completed successfully', [
@@ -536,6 +526,154 @@ class AdminController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to add transaction: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // NEW METHOD: Process deposit or withdrawal
+    public function processUserTransaction(Request $request, $userId)
+    {
+        try {
+            $admin = JWTAuth::parseToken()->authenticate();
+
+            if (!$admin || $admin->role !== 'admin') {
+                return response()->json([
+                    'error' => 'Unauthorized access'
+                ], 403);
+            }
+
+            // Validate request data
+            $validator = Validator::make($request->all(), [
+                'deposit_amount' => 'nullable|numeric|min:0|max:999999999999999999.99',
+                'withdrawal_amount' => 'nullable|numeric|min:0|max:999999999999999999.99',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+
+            // Find the user
+            $user = User::where('id', '=', $userId)->first();
+            if (!$user) {
+                return response()->json([
+                    'error' => "User with ID {$userId} not found"
+                ], 404);
+            }
+
+            $depositAmount = $request->deposit_amount ? (float)$request->deposit_amount : 0;
+            $withdrawalAmount = $request->withdrawal_amount ? (float)$request->withdrawal_amount : 0;
+
+            // Validate that at least one amount is provided
+            if ($depositAmount <= 0 && $withdrawalAmount <= 0) {
+                return response()->json([
+                    'error' => 'Please enter either a deposit amount or withdrawal amount'
+                ], 422);
+            }
+
+            // Store original values for notification
+            $originalBalance = $user->balance;
+            $originalWithdrawal = $user->total_withdrawal;
+
+            Log::info('Processing user transaction:', [
+                'admin_id' => $admin->id,
+                'user_id' => $userId,
+                'deposit_amount' => $depositAmount,
+                'withdrawal_amount' => $withdrawalAmount,
+                'current_balance' => $user->balance,
+                'current_total_withdrawal' => $user->total_withdrawal
+            ]);
+
+            DB::beginTransaction();
+            try {
+                // Process deposit
+                if ($depositAmount > 0) {
+                    // Add to user's balance
+                    $user->balance += $depositAmount;
+
+                    // Create visible deposit transaction
+                    $depositTransaction = new Transaction();
+                    $depositTransaction->user_id = $userId;
+                    $depositTransaction->type = 'deposit';
+                    $depositTransaction->amount = $depositAmount;
+                    $depositTransaction->status = 'completed';
+                    $depositTransaction->description = 'Deposit processed by admin';
+                    $depositTransaction->visible_to_user = true;
+                    $depositTransaction->save();
+
+                    Log::info('Deposit transaction created:', [
+                        'transaction_id' => $depositTransaction->id,
+                        'amount' => $depositAmount
+                    ]);
+                }
+
+                // Process withdrawal
+                if ($withdrawalAmount > 0) {
+                    // Check if user has sufficient balance
+                    if ($user->balance < $withdrawalAmount) {
+                        throw new \Exception("Insufficient balance. Current balance: $" . number_format($user->balance, 2));
+                    }
+
+                    // Subtract from user's balance and add to total withdrawal
+                    $user->balance -= $withdrawalAmount;
+                    $user->total_withdrawal += $withdrawalAmount;
+
+                    // Create visible withdrawal transaction
+                    $withdrawalTransaction = new Transaction();
+                    $withdrawalTransaction->user_id = $userId;
+                    $withdrawalTransaction->type = 'withdrawal';
+                    $withdrawalTransaction->amount = $withdrawalAmount;
+                    $withdrawalTransaction->status = 'completed';
+                    $withdrawalTransaction->description = 'Withdrawal processed by admin';
+                    $withdrawalTransaction->visible_to_user = true;
+                    $withdrawalTransaction->save();
+
+                    Log::info('Withdrawal transaction created:', [
+                        'transaction_id' => $withdrawalTransaction->id,
+                        'amount' => $withdrawalAmount
+                    ]);
+                }
+
+                // Save the updated user
+                $user->save();
+
+                DB::commit();
+
+                // Create notification for the user
+                NotificationService::createBalanceUpdateNotification($user, $originalBalance, $originalWithdrawal);
+
+                Log::info('User transaction processed successfully:', [
+                    'user_id' => $userId,
+                    'new_balance' => $user->balance,
+                    'new_total_withdrawal' => $user->total_withdrawal
+                ]);
+
+                return response()->json([
+                    'message' => 'Transaction processed successfully',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'balance' => (float)$user->balance,
+                        'total_withdrawal' => (float)$user->total_withdrawal
+                    ],
+                    'transactions_created' => [
+                        'deposit' => $depositAmount > 0 ? $depositAmount : null,
+                        'withdrawal' => $withdrawalAmount > 0 ? $withdrawalAmount : null
+                    ]
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                Log::error('Failed to process user transaction:', [
+                    'user_id' => $userId,
+                    'error' => $e->getMessage(),
+                    'data' => $request->all()
+                ]);
+
+                throw $e;
+            }
+            
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to process transaction: ' . $e->getMessage()], 500);
         }
     }
 

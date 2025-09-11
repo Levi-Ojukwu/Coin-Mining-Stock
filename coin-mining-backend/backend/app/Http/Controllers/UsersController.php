@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-// use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Mail;
 
 class UsersController extends Controller 
 {
@@ -130,6 +130,14 @@ class UsersController extends Controller
             ->take(10)
             ->get();
 
+            // Get user notifications
+            $notifications = $user->notifications()
+                ->orderBy('created_at', 'desc')
+                ->take(10)
+                ->get();
+
+            $unreadNotificationsCount = $user->unreadNotifications()->count();
+
             $totalBalance = User::sum('balance');
 
             return response()->json([
@@ -146,6 +154,8 @@ class UsersController extends Controller
                 'balance' => $user->balance,
                 'totalBalance' => $totalBalance,
                 'transactions' => $transactions,
+                'notifications' => $notifications,
+                'unread_notifications_count' => $unreadNotificationsCount,
         ]);
             
         } catch (\Exception $e) {
@@ -175,28 +185,28 @@ class UsersController extends Controller
     }
 
     // Email notification methods
-    // private function sendRegistrationEmail($user)
-    // {
-    //     if (!$user || !$user->email) {
-    //         Log::error('Cannot send registration email: Invalid user or email');
-    //         return;
-    //     }
+    private function sendRegistrationEmail($user)
+    {
+        if (!$user || !$user->email) {
+            Log::error('Cannot send registration email: Invalid user or email');
+            return;
+        }
 
-    //     $data = [
-    //         'name' => $user->name,
-    //         'email' => $user->email,
-    //         'subject' => 'Welcome to Elite Farm Mine - Registration Successful',
-    //         'body' => "Dear {$user->name},\n\nThank you for registering with Elite Farm Mine. Your account has been successfully created.\n\nUsername: {$user->username}\nEmail: {$user->email}\n\nYou can now log in to your account and start exploring our platform.\n\nBest regards,\nElite Farm Mine Team"
-    //     ];
+        $data = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'subject' => 'Welcome to Elite Farm Mine - Registration Successful',
+            'body' => "Dear {$user->name},\n\nThank you for registering with Elite Farm Mine. Your account has been successfully created.\n\nUsername: {$user->username}\nEmail: {$user->email}\n\nYou can now log in to your account and start exploring our platform.\n\nBest regards,\nElite Farm Mine Team"
+        ];
 
-    //     Mail::send([], [], function ($message) use ($data) {
-    //         $message->to($data['email'])
-    //             ->subject($data['subject'])
-    //             ->setBody($data['body'], 'text/plain');
-    //     });
+        Mail::send([], [], function ($message) use ($data) {
+            $message->to($data['email'])
+                ->subject($data['subject'])
+                ->setBody($data['body'], 'text/plain');
+        });
 
-    //     Log::info('Registration email sent to: ' . $user->email);
-    // }
+        Log::info('Registration email sent to: ' . $user->email);
+    }
 
     // private function sendLoginNotificationEmail($user)
     // {
