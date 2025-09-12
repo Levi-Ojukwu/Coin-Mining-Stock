@@ -23,7 +23,7 @@ class NotificationController extends Controller
 
             $notifications = $user->notifications()
                 ->orderBy('created_at', 'desc')
-                ->take(20)
+                ->take(5)
                 ->get();
 
             $unreadCount = $user->unreadNotifications()->count();
@@ -82,6 +82,33 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to mark all notifications as read: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to mark all notifications as read'], 500);
+        }
+    }
+
+    public function deleteNotification($notificationId)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
+
+            $notification = Notification::where('id', $notificationId)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if (!$notification) {
+                return response()->json(['error' => 'Notification not found'], 404);
+            }
+
+            $notification->delete();
+
+            return response()->json(['message' => 'Notification deleted successfully']);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to delete notification: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to delete notification'], 500);
         }
     }
 }

@@ -9,6 +9,18 @@ use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * App\Models\User
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Transaction[] $transactions
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Notification[] $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Notification[] $unreadNotifications
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ */
+
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
@@ -80,12 +92,12 @@ class User extends Authenticatable implements JWTSubject
     }
 
     // Add notifications relationship
-    public function notifications()
+    public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class)->orderBy('created_at', 'desc');
     }
 
-    public function unreadNotifications()
+    public function unreadNotifications(): HasMany
     {
         return $this->hasMany(Notification::class)->where('is_read', false);
     }

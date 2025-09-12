@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Models\Notification;
+use App\Models\AdminNotification;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -152,39 +154,83 @@ class AdminController extends Controller
             if (!$admin || $admin->role !== 'admin') {
                 return response()->json(['error' => 'Unauthorized access'], 403);
             }
+            
+            $totalUsers = User::count();
+            $totalBalance = User::sum('balance');
+            $totalWithdrawals = User::sum('total_withdrawal');
 
-            // Get admin stats
-            $adminCount = Admin::count();
-            $maxAdmins = 15;
-            $slotsAvailable = $maxAdmins - $adminCount;
+            // Get only 5 most recent users
+            $recentUsers = User::orderBy('created_at', 'desc')
+                ->take(3)
+                ->get(['id', 'name', 'email', 'phone_number', 'balance', 'total_withdrawal', 'created_at']);
 
-            $dashboardData = $this->getDashboardData();
+            // Get only 5 most recent transactions
+            $recentTransactions = Transaction::with('user:id,name,email')
+                ->orderBy('created_at', 'desc')
+                ->take(3)
+                ->get();
 
-            // Add admin stats to the response
-            $dashboardData['admin_stats'] = [
-                'current_count' => $adminCount,
-                'max_allowed' => $maxAdmins,
-                'slots_available' => $slotsAvailable
+            // Get only 3 most recent notifications
+            $recentNotifications = Notification::with('user:id,name,email')
+                ->orderBy('created_at', 'desc')
+                ->take(3)
+                ->get();
+
+            // Get admin notifications unread count
+            $adminUnreadNotificationsCount = AdminNotification::where('is_read', false)->count();
+
+             // Get admin stats
+            $adminStats = [
+                'current_count' => Admin::count(),
+                'max_allowed' => 10,
+                'slots_available' => 10 - Admin::count()
             ];
 
             return response()->json([
-                'message' => 'Dashboard data retrieved successfully',
-                'data' => $dashboardData
+                'message' => 'Admin Dashboard data retrieved successfully',
+                'data' => [
+                    'total_users' => $totalUsers,
+                    'total_balance' => $totalBalance,
+                    'total_withdrawals' => $totalWithdrawals,
+                    'recent_users' => $recentUsers,
+                    'recent_transactions' => $recentTransactions,
+                    'recent_notifications' => $recentNotifications,
+                    'admin_unread_notifications_count' => $adminUnreadNotificationsCount,
+                    'admin_stats' => $adminStats
+                ]
             ]);
-        }catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return response()->json(['error' => 'Invalid token'], 401);
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return response()->json(['error' => 'Token has expired'], 401);
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return response()->json(['error' => 'Token not provided'], 401);
         } catch (\Exception $e) {
-            Log::error('Dashboard data retrieval failed', [
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json(['error' => 'Failed to retrieve dashboard data: ' . $e->getMessage()], 500);
+            Log::error('Admin dashboard error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch dashboard data'], 500);
         }
         
+    }
+
+    // New method to get all transactions
+    public function getAllTransactions()
+    {
+        try {
+            $admin = JWTAuth::parseToken()->authenticate();
+
+            if (!$admin || $admin->role !== 'admin') {
+                return response()->json([
+                    'error' => 'Unauthorized access'
+                ], 403);
+            }
+
+            $transactions = Transaction::with('user:id,name,email')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'message' => 'All transactions retrieved successfully',
+                'transactions' => $transactions
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch all transactions: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch transactions'], 500);
+        }
     }
 
     // Function to update user balance
@@ -674,6 +720,33 @@ class AdminController extends Controller
             
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to process transaction: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // New method to get all notifications
+    public function getAllNotifications()
+    {
+        try {
+            $admin = JWTAuth::parseToken()->authenticate();
+
+            if (!$admin || $admin->role !== 'admin') {
+                return response()->json([
+                    'error' => 'Unauthorized access'
+                ], 403);
+            }
+
+            $notifications = Notification::with('user:id,name,email')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'message' => 'All notifications retrieved successfully',
+                'notifications' => $notifications
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch all notifications: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch notifications'], 500);
         }
     }
 

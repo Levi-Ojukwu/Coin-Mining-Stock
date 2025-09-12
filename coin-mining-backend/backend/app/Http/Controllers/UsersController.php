@@ -12,52 +12,64 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Services\AdminNotificationService;
 
 class UsersController extends Controller 
 {
     //Function to Register a User
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' =>  'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'country' => 'nullable|string|max:225',
-            'phone_number' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6|max:15',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users',
+                'country' => 'required|string|max:255',
+                'phone_number' => 'required|string|max:20',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
 
-        if($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()] ,422);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'country' => $request->country,
+                'phone_number' => $request->phone_number,
+                'password' => Hash::make($request->password),
+                'role' => 'user',
+                'balance' => 0.00,
+                'total_withdrawal' => 0.00
+            ]);
+
+            // Create admin notification for new user registration
+            AdminNotificationService::createUserRegistrationNotification($user);
+
+            $token = JWTAuth::fromUser($user);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User registered successfully',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('User registration failed: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Registration failed: ' . $e->getMessage()
+            ], 500);
         }
-
-        $user = User::create([
-            'name' => $request->get('name'),
-            'username' => $request->get('username'),
-            'email' => $request->get('email'),
-            'country' => $request->get('country'),
-            'phone_number' => $request->get('phone_number'),
-            'password' => Hash::make($request->get('password')),
-            'role' => 'user',
-
-        ]);
-
-        $token = JWTAuth::fromUser($user);
-
-        // Send registration confirmation email
-        // try {
-        //     $this->sendRegistrationEmail($user);
-        // } catch (\Exception $e) {
-        //     Log::error('Failed to send registration email: ' . $e->getMessage());
-        //     // Continue with registration even if email fails
-        // }
-
-        return response()->json([
-            'message' => 'User Registered',
-            'user' => $user,
-            'token' => $token
-
-        ], 201);
     }
 
     // Function to Login
@@ -92,6 +104,9 @@ class UsersController extends Controller
 
         $token = JWTAuth::fromUser($user);
 
+        // Notify admin that this user logged in
+        AdminNotificationService::createUserLoginNotification($user);
+
         // Send login notification email
         // try {
         //     $this->sendLoginNotificationEmail($user);
@@ -123,17 +138,23 @@ class UsersController extends Controller
                 ], 404);
             }
 
-            // Only get visible transactions for the user
-            $transactions = Transaction::where('user_id', $user->id)
-            ->where('visible_to_user', true) // Only show visible transactions
-            ->latest()
-            ->take(10)
-            ->get();
+            // Create admin notification for user login (only once per session)
+                // if (!$request->session()->has('login_notification_sent')) {
+                //     AdminNotificationService::createUserLoginNotification($user);
+                //     $request->session()->put('login_notification_sent', true);
+                // }
 
-            // Get user notifications
-            $notifications = $user->notifications()
+            // Only get visible transactions for the user (limit to 5 most recent)
+            $recentTransactions = Transaction::where('user_id', $user->id)
+                ->where('visible_to_user', true)
+                ->latest()
+                ->take(5)
+                ->get();
+
+            // Get user notifications (limit to 5 most recent)
+            $recentNotifications = $user->notifications()
                 ->orderBy('created_at', 'desc')
-                ->take(10)
+                ->take(2)
                 ->get();
 
             $unreadNotificationsCount = $user->unreadNotifications()->count();
@@ -153,8 +174,8 @@ class UsersController extends Controller
                 ],
                 'balance' => $user->balance,
                 'totalBalance' => $totalBalance,
-                'transactions' => $transactions,
-                'notifications' => $notifications,
+                'transactions' => $recentTransactions,
+                'recent_notifications' => $recentNotifications,
                 'unread_notifications_count' => $unreadNotificationsCount,
         ]);
             
@@ -163,6 +184,74 @@ class UsersController extends Controller
             
             return response()->json([
                 'error' => 'Failed to fetch dashboard data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // New method to get all user transactions
+    public function getAllTransactions()
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not found'
+                ], 404);
+            }
+
+            $transactions = Transaction::where('user_id', $user->id)
+                ->where('visible_to_user', true)
+                ->latest()
+                ->get();
+
+            return response()->json([
+                'transactions' => $transactions
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Get all transactions error: ' . $e->getMessage());
+            
+            return response()->json([
+                'error' => 'Failed to fetch transactions: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // New method to delete user transaction
+    public function deleteTransaction($transactionId)
+    {
+        try {
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not found'
+                ], 404);
+            }
+
+            $transaction = Transaction::where('id', $transactionId)
+                ->where('user_id', $user->id)
+                ->where('visible_to_user', true)
+                ->first();
+
+            if (!$transaction) {
+                return response()->json([
+                    'error' => 'Transaction not found or not accessible'
+                ], 404);
+            }
+
+            $transaction->delete();
+
+            return response()->json([
+                'message' => 'Transaction deleted successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Delete transaction error: ' . $e->getMessage());
+            
+            return response()->json([
+                'error' => 'Failed to delete transaction: ' . $e->getMessage()
             ], 500);
         }
     }

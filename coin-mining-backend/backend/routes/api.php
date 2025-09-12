@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 // use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminNotificationController;
 
 
 // Routes For Admin Authentication
@@ -23,6 +24,12 @@ Route::prefix('admin')->group(function () {
         Route::post('/users/{userId}/transactions', [AdminController::class, 'addTransaction']);
         Route::delete('/transactions/{transactionId}', [AdminController::class, 'deleteTransaction'])->name('admin.deleteTransaction');
         Route::get('/users/{userId}/transactions', [AdminController::class, 'getUserTransactions']);
+        Route::get('/transactions', [AdminController::class, 'getAllTransactions']);
+
+        // Admin notification routes
+        Route::get('/admin-notifications', [AdminNotificationController::class, 'getAdminNotifications']);
+        Route::post('/admin-notifications/{id}/read', [AdminNotificationController::class, 'markAsRead']);
+        Route::post('/admin-notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead']);
 
         // NEW ROUTE: Process user transactions (deposits/withdrawals)
         Route::post('/users/{id}/process-transaction', [AdminController::class, 'processUserTransaction']);
@@ -40,6 +47,10 @@ Route::post('/login', [UsersController::class, 'login'])->name('user.login');
 Route::middleware('auth:user-api') -> group(function() {
     Route::get('/dashboard', [UsersController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [UsersController::class, 'logout'])->name('logout');
+
+    // Transaction routes
+    Route::get('/transactions', [UsersController::class, 'getAllTransactions']);
+    Route::delete('/transactions/{id}', [UsersController::class, 'deleteTransaction']);
 
     // Notification routes
     Route::get('/notifications', [NotificationController::class, 'getUserNotifications']);
