@@ -242,11 +242,11 @@ const UpdateUserBalance: React.FC = () => {
           </p>
           <p>
             <strong>Current Balance:</strong>{" "}
-            <span className="text-green-600 font-semibold">${Number(user.balance).toFixed(2)}</span>
+            <span className="text-green-500 font-semibold">${Number(user.balance).toFixed(2)}</span>
           </p>
           <p>
             <strong>Total Withdrawals:</strong>{" "}
-            <span className="text-blue-600 font-semibold">${Number(user.total_withdrawal).toFixed(2)}</span>
+            <span className="text-red-500 font-semibold">${Number(user.total_withdrawal).toFixed(2)}</span>
           </p>
         </CardContent>
       </Card>
@@ -256,7 +256,7 @@ const UpdateUserBalance: React.FC = () => {
         <CardHeader>
           <CardTitle>Process Transaction</CardTitle>
           <p className="text-sm text-gray-600">
-            Enter either a deposit amount (to add to balance) or withdrawal amount (to subtract from balance).
+            Enter either a deposit amount (to add to balance) or withdrawal amount (to withdraw from balance).
           </p>
         </CardHeader>
         <CardContent>
@@ -351,63 +351,6 @@ const UpdateUserBalance: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-		// <div className='max-w-md mx-auto mt-8'>
-		// 	<h2 className='text-2xl font-bold mb-4'>
-		// 		Update User Balance and Total Withdrawal
-		// 	</h2>
-		// 	<div className='mb-4 p-4 bg-gray-50 rounded-lg'>
-		// 		<p>
-		// 			<strong>User:</strong> {user.name}
-		// 		</p>
-		// 		<p>
-		// 			<strong>Email:</strong> {user.email}
-		// 		</p>
-		// 		<p>
-		// 			<strong>Current Balance:</strong> ${Number(user.balance).toFixed(2)}
-		// 		</p>
-		// 		<p>
-		// 			<strong>Current Total Withdrawal:</strong> $
-		// 			{Number(user.total_withdrawal).toFixed(2)}
-		// 		</p>
-		// 	</div>
-		// 	<form
-		// 		onSubmit={handleSubmit}
-		// 		className='space-y-4'>
-		// 		<div>
-		// 			<Label htmlFor='balance'>New Balance</Label>
-		// 			<Input
-		// 				id='balance'
-		// 				type='number'
-		// 				value={newBalance}
-		// 				onChange={(e) => setNewBalance(e.target.value)}
-		// 				required
-		// 				min='0'
-		// 				step='0.01'
-		// 			/>
-		// 		</div>
-		// 		<div>
-		// 			<Label htmlFor='totalWithdrawal'>New Total Withdrawal</Label>
-		// 			<Input
-		// 				id='totalWithdrawal'
-		// 				type='number'
-		// 				value={newTotalWithdrawal}
-		// 				onChange={(e) => setNewTotalWithdrawal(e.target.value)}
-		// 				required
-		// 				min='0'
-		// 				step='0.01'
-		// 			/>
-		// 		</div>
-		// 		<div className='flex space-x-4'>
-		// 			<Button type='submit'>Update</Button>
-		// 			<Button
-		// 				type='button'
-		// 				variant='outline'
-		// 				onClick={() => navigate("/admin/dashboard")}>
-		// 				Cancel
-		// 			</Button>
-		// 		</div>
-		// 	</form>
-		// </div>
 	);
 };
 
