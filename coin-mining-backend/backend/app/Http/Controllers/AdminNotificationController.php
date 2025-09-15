@@ -15,7 +15,7 @@ class AdminNotificationController extends Controller
             $admin = JWTAuth::parseToken()->authenticate();
 
             if (!$admin || $admin->role !== 'admin') {
-                return response()->json(['error' => 'Unauthorized access'], 403);
+                return response()->json(['message' => 'Unauthorized access'], 403);
             }
 
             $notifications = AdminNotification::orderBy('created_at', 'desc')
@@ -25,38 +25,52 @@ class AdminNotificationController extends Controller
             $unreadCount = AdminNotification::where('is_read', false)->count();
 
             return response()->json([
-                'notifications' => $notifications,
-                'unread_count' => $unreadCount
-            ]);
+                'success' => true,
+                'message' => 'Admin notifications fetched successfully',
+                'data' => [
+                    'notifications' => $notifications,
+                    'unread_count' => $unreadCount
+                ]
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Failed to fetch admin notifications: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to fetch notifications'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch notifications'
+            ], 500);
         }
     }
 
-    public function markAsRead(Request $request, $notificationId)
+    public function markAsRead($id)
     {
         try {
             $admin = JWTAuth::parseToken()->authenticate();
 
             if (!$admin || $admin->role !== 'admin') {
-                return response()->json(['error' => 'Unauthorized access'], 403);
+                return response()->json(['message' => 'Unauthorized access'], 403);
             }
 
-            $notification = AdminNotification::find($notificationId);
+            $notification = AdminNotification::find($id);
 
             if (!$notification) {
-                return response()->json(['error' => 'Notification not found'], 404);
+                return response()->json(['message' => 'Notification not found'], 404);
             }
 
-            $notification->markAsRead();
+            $notification->update(['is_read', true]);
 
-            return response()->json(['message' => 'Notification marked as read']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read',
+                'data' => $notification
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Failed to mark admin notification as read: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to mark notification as read'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark notification as read'
+            ], 500);
         }
     }
 
@@ -66,16 +80,22 @@ class AdminNotificationController extends Controller
             $admin = JWTAuth::parseToken()->authenticate();
 
             if (!$admin || $admin->role !== 'admin') {
-                return response()->json(['error' => 'Unauthorized access'], 403);
+                return response()->json(['message' => 'Unauthorized access'], 403);
             }
 
             AdminNotification::where('is_read', false)->update(['is_read' => true]);
 
-            return response()->json(['message' => 'All notifications marked as read']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark notification as read'
+            ], 500);
 
         } catch (\Exception $e) {
             Log::error('Failed to mark all admin notifications as read: ' . $e->getMessage());
-            return response()->json(['error' => 'Failed to mark all notifications as read'], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to mark notification as read'
+            ], 500);
         }
     }
 }
