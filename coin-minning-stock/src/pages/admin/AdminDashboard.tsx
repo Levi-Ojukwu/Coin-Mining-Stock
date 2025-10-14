@@ -78,7 +78,10 @@ interface DashboardData {
 		max_allowed: number;
 		slots_available: number;
 	};
+  admin_unread_notifications_count?: number; // 👈 Add this line
 }
+
+const API_BASE = "http://127.0.0.1:8000/api";
 
 const AdminDashboard: FC = () => {
 	const navigate = useNavigate();
@@ -248,7 +251,7 @@ const AdminDashboard: FC = () => {
       const response = await axios.get<{
 			message: string
 			notifications: Notification[]
-		}>("http://127.0.0.1:8000/api/admin/notifications", {
+		}>("http://127.0.0.1:8000/api/admin/admin-notifications", {
 			headers: {
 			Authorization: `Bearer ${token}`,
 			Accept: "application/json",
@@ -535,7 +538,7 @@ const AdminDashboard: FC = () => {
             <div className="flex items-center">
               <AdminNotificationBell
                 unreadCount={adminUnreadCount}
-                onNotificationUpdate={() => {
+                onNotificationUpdate={() => {``
                   // Refresh admin unread count
                   fetchDashboardData()
                 }}

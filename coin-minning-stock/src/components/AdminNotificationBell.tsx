@@ -40,9 +40,17 @@ const AdminNotificationBell: React.FC<AdminNotificationBellProps> = ({ unreadCou
         },
       })
 
-      setNotifications(response.data.notifications)
+      // ✅ Correct response shape
+      if (response.data && response.data.data && Array.isArray(response.data.data.notifications)) {
+        setNotifications(response.data.data.notifications)
+      } else {
+        setNotifications([]) // fallback
+      }
+
+      // setNotifications(response.data.notifications)
     } catch (error) {
       console.error("Failed to fetch admin notifications:", error)
+      setNotifications([]) // fallback
     } finally {
       setLoading(false)
     }
@@ -54,25 +62,26 @@ const AdminNotificationBell: React.FC<AdminNotificationBellProps> = ({ unreadCou
 
       if (!token) return
 
-      await axios.post(
-        `http://127.0.0.1:8000/api/admin/admin-notifications/${notificationId}/read`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
+      const response = await axios.post(
+      `http://127.0.0.1:8000/api/admin/admin-notifications/${notificationId}/read`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
-      )
+      }
+    )
 
-      // Update local state
-      setNotifications((prev) =>
-        prev.map((notif) => (notif.id === notificationId ? { ...notif, is_read: true } : notif)),
-      )
-
+    if (response.data.success) {
+      // ✅ Remove from list
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
       onNotificationUpdate()
+    }
+
     } catch (error) {
       console.error("Failed to mark notification as read:", error)
+      toast.error("Failed to mark notification as read")
     }
   }
 
@@ -82,7 +91,7 @@ const AdminNotificationBell: React.FC<AdminNotificationBellProps> = ({ unreadCou
 
       if (!token) return
 
-      await axios.post(
+      const response = await axios.post(
         "http://127.0.0.1:8000/api/admin/admin-notifications/mark-all-read",
         {},
         {
@@ -90,14 +99,17 @@ const AdminNotificationBell: React.FC<AdminNotificationBellProps> = ({ unreadCou
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
           },
-        },
+        }
       )
 
-      // Update local state
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, is_read: true })))
-
-      onNotificationUpdate()
-      toast.success("All notifications marked as read")
+      if (response.data.success) {
+        toast.success("All notifications marked as read")
+        setNotifications([]) // ✅ clear list
+        onNotificationUpdate()
+      } else {
+        toast.error(response.data.message || "Failed to mark all as read")
+      }
+      
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error)
       toast.error("Failed to mark all notifications as read")
