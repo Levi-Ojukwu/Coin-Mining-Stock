@@ -9,6 +9,8 @@ class AdminNotification extends Model
 {
     use HasFactory;
 
+    protected $table = 'admin_notifications';
+
     protected $fillable = [
         'type',
         'title',

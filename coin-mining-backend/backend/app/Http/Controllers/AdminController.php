@@ -159,22 +159,33 @@ class AdminController extends Controller
             $totalBalance = User::sum('balance');
             $totalWithdrawals = User::sum('total_withdrawal');
 
-            // Get only 5 most recent users
+            // Get only 3 most recent users
             $recentUsers = User::orderBy('created_at', 'desc')
                 ->take(3)
                 ->get(['id', 'name', 'email', 'phone_number', 'balance', 'total_withdrawal', 'created_at']);
 
-            // Get only 5 most recent transactions
+            // Get only 3 most recent transactions
             $recentTransactions = Transaction::with('user:id,name,email')
                 ->orderBy('created_at', 'desc')
                 ->take(3)
                 ->get();
 
             // Get only 3 most recent notifications
-            $recentNotifications = Notification::with('user:id,name,email')
-                ->orderBy('created_at', 'desc')
+            $recentNotifications = AdminNotification::orderBy('created_at', 'desc')
                 ->take(3)
-                ->get();
+                ->get()
+                ->map(function ($n) {
+                    return [
+                        'id' => $n->id,
+                        'type' => $n->type,
+                        'title' => $n->title,
+                        'message' => $n->message,
+                        'data' => $n->data,
+                        'is_read' => (bool) $n->is_read,
+                        'created_at' => $n->created_at->toDateTimeString(),
+                        'user' => null,
+                    ];
+                });
 
             // Get admin notifications unread count
             $adminUnreadNotificationsCount = AdminNotification::where('is_read', false)->count();

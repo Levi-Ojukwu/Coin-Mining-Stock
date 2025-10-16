@@ -28,6 +28,7 @@ Route::prefix('admin')->group(function () {
 
         // Admin notification routes
         Route::get('/admin-notifications', [AdminNotificationController::class, 'getAdminNotifications']);
+        Route::get('/recent-notifications', [AdminNotificationController::class, 'recent']);
         Route::post('/admin-notifications/{id}/read', [AdminNotificationController::class, 'markAsRead']);
         Route::post('/admin-notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead']);
 

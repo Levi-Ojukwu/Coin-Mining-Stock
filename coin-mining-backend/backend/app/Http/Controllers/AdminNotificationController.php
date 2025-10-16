@@ -19,7 +19,7 @@ class AdminNotificationController extends Controller
             }
 
             $notifications = AdminNotification::orderBy('created_at', 'desc')
-                ->take(20)
+                ->take(4)
                 ->get();
 
             $unreadCount = AdminNotification::where('is_read', false)->count();
@@ -57,7 +57,7 @@ class AdminNotificationController extends Controller
                 return response()->json(['message' => 'Notification not found'], 404);
             }
 
-            $notification->update(['is_read', true]);
+            $notification->update(['is_read' => true]);
 
             return response()->json([
                 'success' => true,
@@ -83,12 +83,13 @@ class AdminNotificationController extends Controller
                 return response()->json(['message' => 'Unauthorized access'], 403);
             }
 
+            // Mark all unread notification as read 
             AdminNotification::where('is_read', false)->update(['is_read' => true]);
 
             return response()->json([
-                'success' => false,
-                'message' => 'Failed to mark notification as read'
-            ], 500);
+                'success' => true,
+                'message' => 'All notifications marked as read successfully'
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Failed to mark all admin notifications as read: ' . $e->getMessage());
@@ -97,5 +98,11 @@ class AdminNotificationController extends Controller
                 'message' => 'Failed to mark notification as read'
             ], 500);
         }
+    }
+
+    public function recent()
+    {
+        $notifications = AdminNotification::latest()->take(5)->get();
+        return response()->json($notifications);
     }
 }
