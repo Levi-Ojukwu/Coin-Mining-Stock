@@ -26,7 +26,7 @@ class UsersController extends Controller
                 'email' => 'required|string|email|max:255|unique:users',
                 'country' => 'required|string|max:255',
                 'phone_number' => 'required|string|max:20',
-                'password' => 'required|string|min:8|confirmed',
+                'password' => 'required|string|min:8',
             ]);
 
             if ($validator->fails()) {
@@ -49,14 +49,28 @@ class UsersController extends Controller
                 'total_withdrawal' => 0.00
             ]);
 
-            // Create admin notification for new user registration
-            AdminNotificationService::createUserRegistrationNotification($user);
+            // Send welcome registration email
+            try {
+                $this->sendRegistrationEmail($user);
+                Log::info('Welcome email sent successfully to: ' . $user->email);
+            } catch (\Exception $e) {
+                Log::error('Failed to send registration email to ' . $user->email . ': ' . $e->getMessage());
+                // Continue with registration even if email fails
+            }
 
+            // Create admin notification for new user registration
+            try {
+                AdminNotificationService::createUserRegistrationNotification($user);
+            } catch (\Exception $e) {
+                Log::error('Failed to create admin notification: ' . $e->getMessage());
+            }
+
+            // Generate JWT token
             $token = JWTAuth::fromUser($user);
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'User registered successfully',
+                'message' => 'User registered successfully. Welcome email sent to you email address.',
                 'data' => [
                     'user' => $user,
                     'token' => $token
@@ -75,53 +89,83 @@ class UsersController extends Controller
     // Function to Login
     public function login(Request $request)
     { 
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'password' => 'required|max:15|min:6',
+            ]);
 
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|max:15|min:6',
-        ]);
-
-        $user = User::where("email", $request->email)->first();
-
-        if (!$user)
-        {
-            return response()->json([
-                'error' => 'Invalid Email'
-            ], 401);
-        } elseif (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'error' => 'Incorrect Password'
-            ], 401);
-        }
-
-            if($validator->fails()) {
-                return response()->json(['error'=>$validator->errors(),422]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
             }
 
+            // Find user by email
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                Log::warning('Login attempt with non-existent email: ' . $request->email);
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Invalid Email'
+                ], 401);
+            }
+
+            // Check password
+            if (!Hash::check($request->password, $user->password)) {
+                Log::warning('Failed login attempt for user: ' . $user->email);
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Incorrect Password'
+                ], 401);
+            }
+
+            // Check if user has proper role
             if ($user->role !== 'user') {
-                return response()->json(['error' => 'Unauthorized Access'], 403);
+                Log::warning('Unauthorized login attempt - user role: ' . $user->role);
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Unauthorized Access'
+                ], 403);
             }
 
-        $token = JWTAuth::fromUser($user);
+            // Generate JWT token
+            $token = JWTAuth::fromUser($user);
 
-        // Notify admin that this user logged in
-        AdminNotificationService::createUserLoginNotification($user);
+            // Notify admin that this user logged in
+            try {
+                AdminNotificationService::createUserLoginNotification($user);
+            } catch (\Exception $e) {
+                Log::error('Failed to create admin login notification: ' . $e->getMessage());
+            }
 
-        // Send login notification email
-        // try {
-        //     $this->sendLoginNotificationEmail($user);
-        // } catch (\Exception $e) {
-        //     Log::error('Failed to send login notification email: ' . $e->getMessage());
-        //     // Continue with login even if email fails
-        // }
+            // Send login notification email to user
+            try {
+                $this->sendLoginNotificationEmail($user);
+                Log::info('Login notification email sent successfully to: ' . $user->email);
+            } catch (\Exception $e) {
+                Log::error('Failed to send login notification email to ' . $user->email . ': ' . $e->getMessage());
+                // Continue with login even if email fails
+            }
 
-        return response()->json([
-            'message' => 'Login Successfully',
-            'user' => $user->makeHidden('password'),
-            'token' => $token
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Login Successfully',
+                'user' => $user->makeHidden('password'),
+                'token' => $token
+            ], 200);
 
-        ], 201);
-    }
+        } catch (\Exception $e) {
+            Log::error('Login error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'error' => 'An error occurred during login: ' . $e->getMessage()
+            ], 500);
+        }
+    }   
 
     //User Dashboard Function
     public function dashboard(Request $request)
@@ -151,7 +195,7 @@ class UsersController extends Controller
                 ->take(5)
                 ->get();
 
-            // Get user notifications (limit to 5 most recent)
+            // Get user notifications (limit to 2 most recent)
             $recentNotifications = $user->notifications()
                 ->orderBy('created_at', 'desc')
                 ->take(2)
@@ -278,46 +322,70 @@ class UsersController extends Controller
     {
         if (!$user || !$user->email) {
             Log::error('Cannot send registration email: Invalid user or email');
-            return;
+            throw new \Exception('Invalid user email address');
         }
 
-        $data = [
-            'name' => $user->name,
-            'email' => $user->email,
-            'subject' => 'Welcome to Elite Farm Mine - Registration Successful',
-            'body' => "Dear {$user->name},\n\nThank you for registering with Elite Farm Mine. Your account has been successfully created.\n\nUsername: {$user->username}\nEmail: {$user->email}\n\nYou can now log in to your account and start exploring our platform.\n\nBest regards,\nElite Farm Mine Team"
-        ];
+        try {
+            $subject = 'Welcome to Coin Mining Stock - Registration Successful';
+            $body = "Dear {$user->name},\n\n";
+            $body .= "Thank you for registering with Coin Mining Stock! Your account has been successfully created and is ready to use.\n\n";
+            $body .= "Account Details:\n";
+            $body .= "Username: {$user->username}\n";
+            $body .= "Email: {$user->email}\n";
+            $body .= "Country: {$user->country}\n\n";
+            $body .= "You can now log in to your account and start exploring our platform.\n\n";
+            $body .= "If you did not create this account, please contact our support team immediately.\n\n";
+            $body .= "Best regards,\n";
+            $body .= "Coin Mining Stock Team\n";
+            $body .= "support@coinminingstock.com";
 
-        Mail::send([], [], function ($message) use ($data) {
-            $message->to($data['email'])
-                ->subject($data['subject'])
-                ->setBody($data['body'], 'text/plain');
-        });
+            Mail::raw($body, function ($message) use ($user, $subject) {
+                $message->to($user->email)
+                    ->subject($subject);
+            });
 
-        Log::info('Registration email sent to: ' . $user->email);
+            Log::info('Registration welcome email sent successfully to: ' . $user->email);
+        } catch (\Exception $e) {
+            Log::error('Error sending registration email to ' . $user->email . ': ' . $e->getMessage());
+            throw $e;
+        }
     }
 
-    // private function sendLoginNotificationEmail($user)
-    // {
-    //     if (!$user || !$user->email) {
-    //         Log::error('Cannot send login notification email: Invalid user or email');
-    //         return;
-    //     }
+    private function sendLoginNotificationEmail($user)
+    {
+        if (!$user || !$user->email) {
+            Log::error('Cannot send login notification email: Invalid user or email');
+            throw new \Exception('Invalid user email address');
+        }
 
-    //     $data = [
-    //         'name' => $user->name,
-    //         'email' => $user->email,
-    //         'subject' => 'Elite Farm Mine - Login Notification',
-    //         'body' => "Dear {$user->name},\n\nWe detected a new login to your Elite Farm Mine account.\n\nIf this was you, no action is needed. If you did not log in, please contact our support team immediately.\n\nTime: " . now()->format('Y-m-d H:i:s') . "\n\nBest regards,\nElite Farm Mine Team"
-    //     ];
+        try {
+            $subject = 'Coin Mining Stock - Login Notification';
+            $loginTime = now()->format('F d, Y \a\t H:i:s');
+            
+            $body = "Dear {$user->name},\n\n";
+            $body .= "We detected a new login to your Coin Mining Stock account.\n\n";
+            $body .= "Login Details:\n";
+            $body .= "Time: {$loginTime}\n";
+            $body .= "Email: {$user->email}\n\n";
+            $body .= "Security Notice:\n";
+            $body .= "If this login was made by you, no further action is required.\n";
+            $body .= "If you did NOT make this login, please:\n";
+            $body .= "1. Change your password immediately\n";
+            $body .= "2. Contact our support team at support@coinminingstock.com\n\n";
+            $body .= "Best regards,\n";
+            $body .= "Coin Mining Stock Team\n";
+            $body .= "support@coinminingstock.com";
 
-    //     Mail::send([], [], function ($message) use ($data) {
-    //         $message->to($data['email'])
-    //             ->subject($data['subject'])
-    //             ->setBody($data['body'], 'text/plain');
-    //     });
+            Mail::raw($body, function ($message) use ($user, $subject) {
+                $message->to($user->email)
+                    ->subject($subject);
+            });
 
-    //     Log::info('Login notification email sent to: ' . $user->email);
-    // }
+            Log::info('Login notification email sent successfully to: ' . $user->email);
+        } catch (\Exception $e) {
+            Log::error('Error sending login notification email to ' . $user->email . ': ' . $e->getMessage());
+            throw $e;
+        }
+    }
 
 }
