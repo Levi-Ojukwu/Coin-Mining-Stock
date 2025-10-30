@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Services\AdminNotificationService;
+use App\Mail\MailSent;
 
-class UsersController extends Controller 
+class UsersController extends Controller
 {
     //Function to Register a User
     public function register(Request $request)
@@ -49,13 +50,16 @@ class UsersController extends Controller
                 'total_withdrawal' => 0.00
             ]);
 
-            // Send welcome registration email
+            // <CHANGE> Queue registration email with better error handling
             try {
                 $this->sendRegistrationEmail($user);
-                Log::info('Welcome email sent successfully to: ' . $user->email);
+                Log::info('Registration email queued for: ' . $user->email);
             } catch (\Exception $e) {
-                Log::error('Failed to send registration email to ' . $user->email . ': ' . $e->getMessage());
-                // Continue with registration even if email fails
+                Log::error('Failed to queue registration email: ' . $e->getMessage(), [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'exception' => $e
+                ]);
             }
 
             // Create admin notification for new user registration
@@ -70,7 +74,7 @@ class UsersController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'User registered successfully. Welcome email sent to you email address.',
+                'message' => 'User registered successfully. A welcome email has been sent to your email address.',
                 'data' => [
                     'user' => $user,
                     'token' => $token
@@ -78,10 +82,12 @@ class UsersController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            Log::error('User registration failed: ' . $e->getMessage());
+            Log::error('User registration failed: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
             return response()->json([
                 'status' => 'error',
-                'message' => 'Registration failed: ' . $e->getMessage()
+                'message' => 'Registration failed. Please try again.'
             ], 500);
         }
     }
@@ -142,13 +148,16 @@ class UsersController extends Controller
                 Log::error('Failed to create admin login notification: ' . $e->getMessage());
             }
 
-            // Send login notification email to user
+            // <CHANGE> Queue login notification email with better error handling
             try {
                 $this->sendLoginNotificationEmail($user);
-                Log::info('Login notification email sent successfully to: ' . $user->email);
+                Log::info('Login notification email queued for: ' . $user->email);
             } catch (\Exception $e) {
-                Log::error('Failed to send login notification email to ' . $user->email . ': ' . $e->getMessage());
-                // Continue with login even if email fails
+                Log::error('Failed to queue login notification email: ' . $e->getMessage(), [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'exception' => $e
+                ]);
             }
 
             return response()->json([
@@ -159,10 +168,12 @@ class UsersController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error('Login error: ' . $e->getMessage());
+            Log::error('Login error: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
             return response()->json([
                 'status' => 'error',
-                'error' => 'An error occurred during login: ' . $e->getMessage()
+                'error' => 'An error occurred during login'
             ], 500);
         }
     }   
@@ -326,27 +337,30 @@ class UsersController extends Controller
         }
 
         try {
-            $subject = 'Welcome to Coin Mining Stock - Registration Successful';
-            $body = "Dear {$user->name},\n\n";
-            $body .= "Thank you for registering with Coin Mining Stock! Your account has been successfully created and is ready to use.\n\n";
-            $body .= "Account Details:\n";
-            $body .= "Username: {$user->username}\n";
-            $body .= "Email: {$user->email}\n";
-            $body .= "Country: {$user->country}\n\n";
-            $body .= "You can now log in to your account and start exploring our platform.\n\n";
-            $body .= "If you did not create this account, please contact our support team immediately.\n\n";
-            $body .= "Best regards,\n";
-            $body .= "Coin Mining Stock Team\n";
-            $body .= "support@coinminingstock.com";
 
-            Mail::raw($body, function ($message) use ($user, $subject) {
-                $message->to($user->email)
-                    ->subject($subject);
-            });
+            $emailData = [
+                'subject' => 'Welcome to Coin Mining Stock - Account Created Successfully',
+                'name' => $user->name,
+                'type' => 'registration',
+                'body' => "Welcome to Coin Mining Stock! Your account has been created successfully.",
+                'details' => [
+                    'Username' => $user->username,
+                    'Email' => $user->email,
+                    'Country' => $user->country,
+                    'Account Status' => 'Active'
+                ],
+                'message' => 'You can now log in to your account and start exploring our platform.',
+                'footer' => 'If you did not create this account, please contact our support team immediately.'
+            ];
 
-            Log::info('Registration welcome email sent successfully to: ' . $user->email);
+            Mail::to($user->email)->send(new MailSent($emailData));
+            Log::info('Registration email sent to: ' . $user->email);
+
         } catch (\Exception $e) {
-            Log::error('Error sending registration email to ' . $user->email . ': ' . $e->getMessage());
+            Log::error('Error sending registration email: ' . $e->getMessage(), [
+                'user_email' => $user->email,
+                'exception' => $e
+            ]);
             throw $e;
         }
     }
@@ -359,31 +373,31 @@ class UsersController extends Controller
         }
 
         try {
-            $subject = 'Coin Mining Stock - Login Notification';
-            $loginTime = now()->format('F d, Y \a\t H:i:s');
-            
-            $body = "Dear {$user->name},\n\n";
-            $body .= "We detected a new login to your Coin Mining Stock account.\n\n";
-            $body .= "Login Details:\n";
-            $body .= "Time: {$loginTime}\n";
-            $body .= "Email: {$user->email}\n\n";
-            $body .= "Security Notice:\n";
-            $body .= "If this login was made by you, no further action is required.\n";
-            $body .= "If you did NOT make this login, please:\n";
-            $body .= "1. Change your password immediately\n";
-            $body .= "2. Contact our support team at support@coinminingstock.com\n\n";
-            $body .= "Best regards,\n";
-            $body .= "Coin Mining Stock Team\n";
-            $body .= "support@coinminingstock.com";
+            $loginTime = now()->format('F d, Y \a\t H:i A');
+            $ipAddress = request()->ip();
 
-            Mail::raw($body, function ($message) use ($user, $subject) {
-                $message->to($user->email)
-                    ->subject($subject);
-            });
+            $emailData = [
+                'subject' => 'New Login to Your Coin Mining Stock Account',
+                'name' => $user->name,
+                'type' => 'login',
+                'body' => 'We detected a new login to your Coin Mining Stock account.',
+                'details' => [
+                    'Login Time' => $loginTime,
+                    'Email' => $user->email,
+                    'IP Address' => $ipAddress ?? 'Unknown'
+                ],
+                'message' => 'If this login was made by you, no further action is required.',
+                'footer' => 'If this was not you, please change your password immediately or contact support.'
+            ];
 
-            Log::info('Login notification email sent successfully to: ' . $user->email);
+            Mail::to($user->email)->send(new MailSent($emailData));
+            Log::info('Login notification email sent to: ' . $user->email);
+
         } catch (\Exception $e) {
-            Log::error('Error sending login notification email to ' . $user->email . ': ' . $e->getMessage());
+            Log::error('Error sending login notification email: ' . $e->getMessage(), [
+                'user_email' => $user->email,
+                'exception' => $e
+            ]);
             throw $e;
         }
     }
